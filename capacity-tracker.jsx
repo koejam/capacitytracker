@@ -2825,7 +2825,7 @@ export function App() {
           <span style={{ color: '#fff', fontWeight: 800, fontSize: 16, fontFamily: "'Inter', system-ui, sans-serif" }}>TeamScope</span>
           <div style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
             {TABS.map(t => (
-              <button key={t} onClick={() => setTab(t)} style={{ background: tab === t ? '#3b4268' : 'transparent', color: tab === t ? '#fff' : '#8b92a5', border: 'none', borderRadius: 6, padding: '6px 14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", textTransform: 'capitalize', whiteSpace: 'nowrap', transition: 'background 0.15s ease' }}>{t}</button>
+              <button key={t} onClick={() => { setTab(t); setClientView(null); }} style={{ background: tab === t ? '#3b4268' : 'transparent', color: tab === t ? '#fff' : '#8b92a5', border: 'none', borderRadius: 6, padding: '6px 14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", textTransform: 'capitalize', whiteSpace: 'nowrap', transition: 'background 0.15s ease' }}>{t}</button>
             ))}
           </div>
         </div>
