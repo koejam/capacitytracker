@@ -531,8 +531,8 @@ function LoginScreen({ onLogin }) {
   return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f7f5f0', fontFamily: css.fonts.body }}>
       <div style={{ ...css.card, width: 400, textAlign: 'center', animation: 'fadeIn 0.3s ease' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#000000', marginBottom: 4, fontFamily: css.fonts.heading }}>TeamScope</h1>
-        <p style={{ color: '#3d3c38', fontSize: 14, marginBottom: 24, fontFamily: css.fonts.mono }}>{mode === 'admin' ? 'Admin Access' : 'Enter your access code'}</p>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#000000', marginBottom: 4, fontFamily: css.fonts.body }}>TeamScope</h1>
+        <p style={{ color: '#3d3c38', fontSize: 14, marginBottom: 24, fontFamily: css.fonts.body }}>{mode === 'admin' ? 'Admin Access' : 'Enter your access code'}</p>
         <input
           type={mode === 'admin' ? 'password' : 'text'}
           value={value}
@@ -651,18 +651,18 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
       <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 14, flexWrap: 'wrap' }}>
         {/* Inline metrics */}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, cursor: 'pointer' }} onClick={onOpenPeopleSummary}>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: css.fonts.mono }}>{people.length}</span>
-          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.mono }}>people</span>
+          <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: css.fonts.body }}>{people.length}</span>
+          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.body }}>people</span>
         </div>
         <div style={{ width: 1, height: 20, background: '#e2ddd6' }} />
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: css.fonts.mono }}>{totalRevenue > 0 ? fmtDol(totalRevenue) : '--'}</span>
-          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.mono }}>revenue</span>
+          <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: css.fonts.body }}>{totalRevenue > 0 ? fmtDol(totalRevenue) : '--'}</span>
+          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.body }}>revenue</span>
         </div>
         <div style={{ width: 1, height: 20, background: '#e2ddd6' }} />
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-          <span style={{ fontSize: 22, fontWeight: 800, color: utilColor(avgUtil, settings.thresholds), fontFamily: css.fonts.mono }}>{pct(avgUtil)}</span>
-          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.mono }}>avg util</span>
+          <span style={{ fontSize: 22, fontWeight: 800, color: utilColor(avgUtil, settings.thresholds), fontFamily: css.fonts.body }}>{pct(avgUtil)}</span>
+          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.body }}>avg util</span>
         </div>
         {/* Spacer */}
         <div style={{ flex: 1 }} />
@@ -688,7 +688,7 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
 
       {/* Filter indicator */}
       {activeFilter && (
-        <div style={{ fontSize: 12, color: '#3d3c38', marginBottom: 8, fontFamily: css.fonts.mono }}>
+        <div style={{ fontSize: 12, color: '#3d3c38', marginBottom: 8, fontFamily: css.fonts.body }}>
           Showing {filteredRows.length} of {clientRows.length} clients
           <span style={{ marginLeft: 8, color: '#1d4e89', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setActiveFilter(null)}>clear</span>
         </div>
@@ -720,19 +720,19 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
                     <td style={css.td}>
                       <span style={{ fontWeight: 600, color: '#000000' }}>{c.name}</span>
                     </td>
-                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13 }}>
+                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13 }}>
                       {c.revenue ? fmtDol(c.revenue) : <span style={{ color: '#8a8680' }}>—</span>}
                     </td>
-                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13 }}>
+                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13 }}>
                       {cost > 0 ? fmtDol(cost) : <span style={{ color: '#8a8680' }}>—</span>}
                     </td>
-                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13 }}>
+                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13 }}>
                       {teamSize}
                     </td>
-                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13 }}>
+                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13 }}>
                       <span style={{ color: utilColor(cUtil, settings.thresholds), fontWeight: 600 }}>{pct(cUtil)}</span>
                     </td>
-                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13 }}>
+                    <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13 }}>
                       {gaps.length > 0 ? (
                         <span style={{ color: '#9b2335', fontWeight: 700 }}>{gaps.length}</span>
                       ) : (
@@ -798,17 +798,17 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
               <td style={{ ...css.td, fontWeight: 700, color: '#000000', borderTop: '2px solid #e2ddd6' }}>
                 {filteredRows.length} client{filteredRows.length !== 1 ? 's' : ''}
               </td>
-              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13, fontWeight: 700, borderTop: '2px solid #e2ddd6' }}>
+              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13, fontWeight: 700, borderTop: '2px solid #e2ddd6' }}>
                 {footerRevenue > 0 ? fmtDol(footerRevenue) : '—'}
               </td>
-              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13, fontWeight: 700, borderTop: '2px solid #e2ddd6' }}>
+              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13, fontWeight: 700, borderTop: '2px solid #e2ddd6' }}>
                 {footerCost > 0 ? fmtDol(footerCost) : '—'}
               </td>
-              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13, fontWeight: 700, borderTop: '2px solid #e2ddd6' }}>
+              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13, fontWeight: 700, borderTop: '2px solid #e2ddd6' }}>
                 {footerTeam}
               </td>
               <td style={{ ...css.td, borderTop: '2px solid #e2ddd6' }} />
-              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13, fontWeight: 700, color: footerGaps > 0 ? '#9b2335' : '#8a8680', borderTop: '2px solid #e2ddd6' }}>
+              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.body, fontSize: 13, fontWeight: 700, color: footerGaps > 0 ? '#9b2335' : '#8a8680', borderTop: '2px solid #e2ddd6' }}>
                 {footerGaps > 0 ? footerGaps : '—'}
               </td>
               <td style={{ ...css.td, borderTop: '2px solid #e2ddd6' }} />
