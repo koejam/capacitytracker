@@ -2783,7 +2783,7 @@ function GapRow({ gap, clients, people, selected, hasProposal, onSelect }) {
   );
 }
 
-function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandbox, setSandbox }) {
+function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandbox, setSandbox, setSandboxData }) {
   const { people, clients, assignments } = data;
   const [selectedGapId, setSelectedGapId] = useState(null);
   const [selectedCandidateId, setSelectedCandidateId] = useState(null);
@@ -2927,12 +2927,38 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
   const clearAllProposals = () => setProposals([]);
 
   const commitAll = () => {
-    // Implemented in Task 10
-    alert('Commit all — wiring next task');
+    if (proposals.length === 0) return;
+    const proposalMap = new Map(proposals.map(p => [p.gapAssignmentId, p.personId]));
+    const updatedAssignments = assignments.map(a => {
+      if (!proposalMap.has(a.id)) return a;
+      return { ...a, personId: proposalMap.get(a.id), lastModified: new Date().toISOString() };
+    });
+    setData({ ...data, assignments: updatedAssignments });
+    setProposals([]);
+    setSelectedGapId(null);
+    setSelectedCandidateId(null);
   };
+
   const openInSandbox = () => {
-    // Implemented in Task 10
-    alert('Open in Sandbox — wiring next task');
+    if (proposals.length === 0) return;
+    const proposalMap = new Map(proposals.map(p => [p.gapAssignmentId, p.personId]));
+    const updatedAssignments = assignments.map(a => {
+      if (!proposalMap.has(a.id)) return a;
+      return { ...a, personId: proposalMap.get(a.id), lastModified: new Date().toISOString() };
+    });
+    // Clone current active data into sandbox with proposals applied
+    const clone = {
+      ...data,
+      assignments: updatedAssignments,
+      people: [...data.people],
+      clients: [...data.clients],
+      settings: { ...data.settings },
+    };
+    setSandboxData(clone);
+    setSandbox(true);
+    setProposals([]);
+    setSelectedGapId(null);
+    setSelectedCandidateId(null);
   };
 
   return (
@@ -3251,7 +3277,7 @@ export function App() {
                 openDetail(detail);
               }
             }} />}
-            {tab === 'gaps' && <GapsWorkbench data={activeData} setData={setData} settings={activeData.settings} proposals={proposals} setProposals={setProposals} sandbox={sandbox} setSandbox={setSandbox} />}
+            {tab === 'gaps' && <GapsWorkbench data={activeData} setData={setData} settings={activeData.settings} proposals={proposals} setProposals={setProposals} sandbox={sandbox} setSandbox={setSandbox} setSandboxData={setSandboxData} />}
             {tab === 'data' && <DataTab data={activeData} setData={setData} />}
             {tab === 'settings' && <SettingsTab data={activeData} setData={setData} />}
           </>
