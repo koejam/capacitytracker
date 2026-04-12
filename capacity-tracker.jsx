@@ -2740,10 +2740,60 @@ function WelcomeDashboard({ onLoadSample }) {
 // ─── Main App ───────────────────────────────────────────────────
 // ─── Gaps Workbench ─────────────────────────────────────────────
 function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandbox, setSandbox }) {
+  const { people, clients, assignments } = data;
+  const [selectedGapId, setSelectedGapId] = useState(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState(null);
+  const [filters, setFilters] = useState({ cohorts: [], chairs: [], types: [], statuses: [] });
+  const [sortBy, setSortBy] = useState('revenue'); // 'revenue' | 'endDate'
+  const [groupBy, setGroupBy] = useState('flat'); // 'flat' | 'client'
+
+  const gaps = useMemo(() => assignments.filter(a => isPlaceholder(a.personId)), [assignments]);
+  const selectedGap = gaps.find(g => g.id === selectedGapId) || null;
+  const selectedClient = selectedGap ? clients.find(c => c.id === selectedGap.clientId) : null;
+
   return (
-    <div style={{ padding: 24, height: '100%', overflow: 'auto' }}>
-      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#000', marginTop: 0, marginBottom: 8 }}>Gaps</h1>
-      <p style={{ color: '#2a2925', fontSize: 14 }}>Workbench coming online — placeholder.</p>
+    <div style={{ display: 'flex', height: '100%', overflow: 'hidden', background: '#f7f5f0' }}>
+      {/* LEFT PANE */}
+      <div style={{ width: 320, borderRight: '1px solid #e2ddd6', display: 'flex', flexDirection: 'column', background: '#fff' }}>
+        <div style={{ padding: 16, borderBottom: '1px solid #e2ddd6' }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#000' }}>Gaps</div>
+          <div style={{ fontSize: 13, color: '#2a2925', marginTop: 4 }}>{gaps.length} gaps · {proposals.length} in proposals</div>
+        </div>
+        <div style={{ flex: 1, overflow: 'auto', padding: 12 }}>
+          <div style={{ color: '#3d3c38', fontSize: 13, padding: 12 }}>Gaps list — next task.</div>
+        </div>
+      </div>
+
+      {/* MIDDLE PANE */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ padding: 20, borderBottom: '1px solid #e2ddd6', background: '#fff' }}>
+          {selectedGap && selectedClient ? (
+            <>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#000' }}>{selectedClient.name}</div>
+              <div style={{ fontSize: 13, color: '#2a2925', marginTop: 4 }}>
+                {CHAIR_LABELS[selectedGap.chairPosition]} · {assignmentCohort(selectedGap, people)} · {placeholderLabel(selectedGap.personId)}
+              </div>
+            </>
+          ) : (
+            <div style={{ color: '#3d3c38', fontSize: 14 }}>Select a gap from the left to see details and candidates.</div>
+          )}
+        </div>
+        <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+          <div style={{ color: '#3d3c38', fontSize: 13 }}>Candidates — next task.</div>
+        </div>
+      </div>
+
+      {/* RIGHT PANE */}
+      <div style={{ width: 400, borderLeft: '1px solid #e2ddd6', display: 'flex', flexDirection: 'column', background: '#fff' }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: 20, borderBottom: '1px solid #e2ddd6' }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Impact</div>
+          <div style={{ color: '#3d3c38', fontSize: 13 }}>Select a candidate to preview capacity impact.</div>
+        </div>
+        <div style={{ padding: 20, background: '#faf8f3', maxHeight: '40%', overflow: 'auto' }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Proposed fills ({proposals.length})</div>
+          <div style={{ color: '#3d3c38', fontSize: 13 }}>No proposals yet.</div>
+        </div>
+      </div>
     </div>
   );
 }
