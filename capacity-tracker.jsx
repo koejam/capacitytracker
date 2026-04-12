@@ -1131,7 +1131,97 @@ function PersonForm({ data, person, onSave, onClose }) {
 }
 
 // ─── Person Detail Panel ────────────────────────────────────────
-function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
+// ─── Person Sidebar ─────────────────────────────────────────────
+function PersonSidebar({ data, personId, onSelect, onBack }) {
+  const { people } = data;
+  const [search, setSearch] = useState('');
+  const [byLevel, setByLevel] = useState(false);
+  const [byCohort, setByCohort] = useState(false);
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return people.filter(p => !q || p.name.toLowerCase().includes(q) || (p.pod || '').toLowerCase().includes(q));
+  }, [people, search]);
+
+  const sortedFlat = useMemo(() => [...filtered].sort((a, b) => a.name.localeCompare(b.name)), [filtered]);
+
+  // Build grouped structure based on toggles
+  const groups = useMemo(() => {
+    if (!byLevel && !byCohort) return null;
+    const out = {};
+    filtered.forEach(p => {
+      const cohortKey = byCohort ? (p.cohorts?.[0] || 'Other') : null;
+      const levelKey = byLevel ? `L${p.level}` : null;
+      const key = [cohortKey, levelKey].filter(Boolean).join(' · ');
+      (out[key] = out[key] || []).push(p);
+    });
+    // Sort each bucket alphabetically, return ordered entries
+    const keys = Object.keys(out).sort((a, b) => {
+      // If grouping by level only, sort L1..L7
+      if (byLevel && !byCohort) return parseInt(a.slice(1), 10) - parseInt(b.slice(1), 10);
+      return a.localeCompare(b);
+    });
+    return keys.map(k => ({ key: k, people: out[k].sort((a, b) => a.name.localeCompare(b.name)) }));
+  }, [filtered, byLevel, byCohort]);
+
+  const renderRow = (p) => {
+    const isActive = p.id === personId;
+    return (
+      <div
+        key={p.id}
+        onClick={() => onSelect(p.id)}
+        style={{
+          padding: '8px 10px',
+          cursor: 'pointer',
+          borderBottom: '1px solid #f2efe8',
+          borderLeft: isActive ? '3px solid #000000' : '3px solid transparent',
+          background: isActive ? '#f7f5f0' : 'transparent',
+          fontSize: 13,
+          fontWeight: isActive ? 600 : 400,
+          color: '#000000',
+          lineHeight: 1.3,
+          transition: 'background 0.1s ease',
+        }}
+      >
+        {p.name}
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ width: 220, flexShrink: 0, borderRight: '1px solid #e2ddd6', background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ padding: '12px 10px 8px', borderBottom: '1px solid #e2ddd6', flexShrink: 0 }}>
+        <button onClick={onBack} style={{ ...css.btnGhost(), fontSize: 12, padding: '4px 8px', width: '100%', textAlign: 'left' }}>← All people</button>
+      </div>
+      <div style={{ padding: '8px 10px', borderBottom: '1px solid #e2ddd6', flexShrink: 0 }}>
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." style={{ ...css.input, fontSize: 12, padding: '5px 8px' }} />
+        <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+          <button onClick={() => setByLevel(v => !v)} style={{ flex: 1, padding: '3px 6px', fontSize: 11, border: '1px solid #e2ddd6', borderRadius: 4, background: byLevel ? '#000' : '#fff', color: byLevel ? '#fff' : '#2a2925', cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>Level</button>
+          <button onClick={() => setByCohort(v => !v)} style={{ flex: 1, padding: '3px 6px', fontSize: 11, border: '1px solid #e2ddd6', borderRadius: 4, background: byCohort ? '#000' : '#fff', color: byCohort ? '#fff' : '#2a2925', cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>Cohort</button>
+        </div>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {groups ? (
+          groups.map(g => (
+            <div key={g.key}>
+              <div style={{ padding: '6px 10px', background: '#faf8f3', fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', position: 'sticky', top: 0 }}>
+                {g.key} <span style={{ color: '#3d3c38', fontWeight: 400 }}>· {g.people.length}</span>
+              </div>
+              {g.people.map(renderRow)}
+            </div>
+          ))
+        ) : (
+          sortedFlat.map(renderRow)
+        )}
+        {filtered.length === 0 && (
+          <div style={{ padding: 12, fontSize: 12, color: '#8a8680', textAlign: 'center' }}>No people</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PersonDetail({ data, setData, personId, onClose, onOpenDetail, mode = 'modal' }) {
   const { people, clients, assignments, settings } = data;
   const person = people.find(p => p.id === personId);
   if (!person) return null;
@@ -1161,9 +1251,17 @@ function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
 
   const uColor = u.util > 110 ? '#9b2335' : u.util >= 80 ? '#0077b6' : '#f59e0b';
 
+  const isPanel = mode === 'panel';
+  const outerStyle = isPanel
+    ? { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#fff' }
+    : css.overlay;
+  const innerStyle = isPanel
+    ? { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }
+    : css.panelBox('min(800px, 95vw)');
+
   return (
-    <div style={css.overlay} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={css.panelBox('min(800px, 95vw)')} onClick={e => e.stopPropagation()}>
+    <div style={outerStyle} onClick={isPanel ? undefined : (e => { if (e.target === e.currentTarget) onClose(); })}>
+      <div style={innerStyle} onClick={isPanel ? undefined : (e => e.stopPropagation())}>
       <div style={css.panelHdr}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
@@ -1189,7 +1287,7 @@ function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
             <div style={{ background: uColor, color: '#fff', borderRadius: 8, padding: '6px 12px', fontWeight: 700, fontSize: 16, textAlign: 'center' }}>
               {pct(u.util)}
             </div>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#3d3c38', fontSize: 18, cursor: 'pointer' }}>✕</button>
+            {!isPanel && <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#3d3c38', fontSize: 18, cursor: 'pointer' }}>✕</button>}
           </div>
         </div>
         {/* Pin visibility */}
@@ -3196,6 +3294,7 @@ export function App() {
   const [data, setDataRaw] = useState(loadData);
   const [tab, setTab] = useState('dashboard');
   const [clientView, setClientView] = useState(null); // null or { clientId, filter }
+  const [personView, setPersonView] = useState(null); // null or { personId }
   const [proposals, setProposals] = useState([]); // staged gap fills: { gapAssignmentId, personId }[]
   const [detailPanel, setDetailPanel] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -3240,6 +3339,16 @@ export function App() {
   const openDetail = (detail) => {
     setShowGaps(false);
     setShowPeopleSummary(false);
+    if (detail.type === 'person') {
+      setClientView(null);
+      setPersonView({ personId: detail.id });
+      return;
+    }
+    if (detail.type === 'client') {
+      setPersonView(null);
+      setClientView({ clientId: detail.id, filter: null });
+      return;
+    }
     setDetailPanel(detail);
   };
 
@@ -3276,7 +3385,7 @@ export function App() {
           <span style={{ color: '#fff', fontWeight: 800, fontSize: 16, fontFamily: "'Inter', system-ui, sans-serif" }}>TeamScope</span>
           <div style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
             {TABS.map(t => (
-              <button key={t} onClick={() => { setTab(t); setClientView(null); }} style={{ background: tab === t ? '#3b4268' : 'transparent', color: tab === t ? '#fff' : '#8b92a5', border: 'none', borderRadius: 6, padding: '6px 14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", textTransform: 'capitalize', whiteSpace: 'nowrap', transition: 'background 0.15s ease' }}>{t}</button>
+              <button key={t} onClick={() => { setTab(t); setClientView(null); setPersonView(null); }} style={{ background: tab === t ? '#3b4268' : 'transparent', color: tab === t ? '#fff' : '#8b92a5', border: 'none', borderRadius: 6, padding: '6px 14px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif", textTransform: 'capitalize', whiteSpace: 'nowrap', transition: 'background 0.15s ease' }}>{t}</button>
             ))}
           </div>
         </div>
@@ -3311,6 +3420,23 @@ export function App() {
               onOpenRoster={setRosterContext}
             />
           </div>
+        ) : personView ? (
+          <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+            <PersonSidebar
+              data={activeData}
+              personId={personView.personId}
+              onSelect={id => setPersonView({ personId: id })}
+              onBack={() => setPersonView(null)}
+            />
+            <PersonDetail
+              data={activeData}
+              setData={setData}
+              personId={personView.personId}
+              onClose={() => setPersonView(null)}
+              onOpenDetail={openDetail}
+              mode="panel"
+            />
+          </div>
         ) : (
           <>
             {tab === 'dashboard' && <Dashboard data={activeData} onOpenDetail={openDetail} onOpenGaps={() => setShowGaps(true)} onOpenPeopleSummary={() => setShowPeopleSummary(true)} onNavigateClient={(id, filter) => {
@@ -3331,10 +3457,7 @@ export function App() {
           </>
         )}
 
-        {/* Detail Panels */}
-        {detailPanel?.type === 'person' && (
-          <PersonDetail data={activeData} setData={setData} personId={detailPanel.id} onClose={() => setDetailPanel(null)} onOpenDetail={openDetail} />
-        )}
+        {/* Detail Panels — PersonDetail is now rendered via personView (sidebar mode) */}
 
         {/* People Summary */}
         {showPeopleSummary && <PeopleSummaryPanel data={activeData} onClose={() => setShowPeopleSummary(false)} onOpenDetail={openDetail} />}
