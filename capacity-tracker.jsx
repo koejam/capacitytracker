@@ -582,6 +582,16 @@ function Badge({ count, color = '#9b2335' }) {
 function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavigateClient }) {
   const { people, clients, assignments, settings } = data;
   const [activeFilter, setActiveFilter] = useState(null); // null | 'overTarget' | 'endingSoon' | 'gaps'
+  const [sortBy, setSortBy] = useState(null); // null | 'name' | 'revenue' | 'cost' | 'team' | 'util' | 'gaps' | 'status'
+  const [sortDir, setSortDir] = useState('desc'); // 'asc' | 'desc'
+
+  const toggleSort = (key) => {
+    if (sortBy !== key) { setSortBy(key); setSortDir(key === 'name' || key === 'status' ? 'asc' : 'desc'); }
+    else if (sortDir === 'desc') { setSortDir('asc'); }
+    else { setSortBy(null); setSortDir('desc'); }
+  };
+
+  const sortArrow = (key) => sortBy !== key ? '' : (sortDir === 'asc' ? ' ▲' : ' ▼');
 
   const activeClients = useMemo(() => clients.filter(c => c.clientStatus !== 'Prospect'), [clients]);
 
@@ -618,12 +628,26 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
 
   // Filter logic
   const filteredRows = useMemo(() => {
-    if (!activeFilter) return clientRows;
-    if (activeFilter === 'overTarget') return clientRows.filter(r => r.overTarget.length > 0);
-    if (activeFilter === 'endingSoon') return clientRows.filter(r => r.endDays !== null && r.endDays > 0 && r.endDays <= 60);
-    if (activeFilter === 'gaps') return clientRows.filter(r => r.gaps.length > 0);
-    return clientRows;
-  }, [clientRows, activeFilter]);
+    let rows = clientRows;
+    if (activeFilter === 'overTarget') rows = rows.filter(r => r.overTarget.length > 0);
+    else if (activeFilter === 'endingSoon') rows = rows.filter(r => r.endDays !== null && r.endDays > 0 && r.endDays <= 60);
+    else if (activeFilter === 'gaps') rows = rows.filter(r => r.gaps.length > 0);
+    if (!sortBy) return rows;
+    const dir = sortDir === 'asc' ? 1 : -1;
+    const val = (r) => {
+      switch (sortBy) {
+        case 'name': return (r.client.name || '').toLowerCase();
+        case 'revenue': return r.client.revenue || 0;
+        case 'cost': return r.cost || 0;
+        case 'team': return r.teamSize || 0;
+        case 'util': return r.avgUtil || 0;
+        case 'gaps': return r.gaps.length;
+        case 'status': return (r.client.clientStatus || '').toLowerCase();
+        default: return 0;
+      }
+    };
+    return [...rows].sort((a, b) => { const va = val(a), vb = val(b); if (va < vb) return -1 * dir; if (va > vb) return 1 * dir; return 0; });
+  }, [clientRows, activeFilter, sortBy, sortDir]);
 
   const toggleFilter = (f) => setActiveFilter(prev => prev === f ? null : f);
 
@@ -699,13 +723,13 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th style={css.th}>Client</th>
-              <th style={{ ...css.th, textAlign: 'right' }}>Revenue</th>
-              <th style={{ ...css.th, textAlign: 'right' }}>Cost</th>
-              <th style={{ ...css.th, textAlign: 'right' }}>Team</th>
-              <th style={{ ...css.th, textAlign: 'right' }}>Avg Util</th>
-              <th style={{ ...css.th, textAlign: 'right' }}>Gaps</th>
-              <th style={css.th}>Status</th>
+              <th style={{ ...css.th, cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort('name')}>Client{sortArrow('name')}</th>
+              <th style={{ ...css.th, textAlign: 'right', cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort('revenue')}>Revenue{sortArrow('revenue')}</th>
+              <th style={{ ...css.th, textAlign: 'right', cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort('cost')}>Cost{sortArrow('cost')}</th>
+              <th style={{ ...css.th, textAlign: 'right', cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort('team')}>Team{sortArrow('team')}</th>
+              <th style={{ ...css.th, textAlign: 'right', cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort('util')}>Avg Util{sortArrow('util')}</th>
+              <th style={{ ...css.th, textAlign: 'right', cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort('gaps')}>Gaps{sortArrow('gaps')}</th>
+              <th style={{ ...css.th, cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort('status')}>Status{sortArrow('status')}</th>
             </tr>
           </thead>
           <tbody>
