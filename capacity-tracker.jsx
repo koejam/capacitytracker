@@ -2836,6 +2836,48 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
 
   const proposalGapIds = useMemo(() => new Set(proposals.map(p => p.gapAssignmentId)), [proposals]);
 
+  function computeFitScore(person, gap, target) {
+    const range = CHAIR_LEVEL_MAP[gap.chairPosition];
+    const targetLevel = Math.round((range[0] + range[1]) / 2);
+    const levelFit = person.level === targetLevel ? 1.0 : (person.level >= range[0] && person.level <= range[1] ? 0.6 : 0);
+    const gapCohort = assignmentCohort(gap, people);
+    const cohortIndex = (person.cohorts || []).indexOf(gapCohort);
+    const cohortFit = cohortIndex === 0 ? 1.0 : cohortIndex > 0 ? 0.7 : 0;
+    const client = clients.find(c => c.id === gap.clientId);
+    const gapHours = gap.hoursOverride || (client ? calcHours(client.complexity, gap.chairPosition, settings) : 0);
+    const { hours } = calcPersonHours(person.id, assignments, clients, settings);
+    const projected = target > 0 ? ((hours + gapHours) / target) * 100 : 0;
+    const capacityFit = projected <= 80 ? 1.0 : projected <= 100 ? 0.7 : 0.4;
+    const score = Math.round((levelFit * 0.4 + cohortFit * 0.3 + capacityFit * 0.3) * 100);
+    return { score, projected, gapHours };
+  }
+
+  const candidates = useMemo(() => {
+    if (!selectedGap) return [];
+    const range = CHAIR_LEVEL_MAP[selectedGap.chairPosition];
+    const gapCohort = assignmentCohort(selectedGap, people);
+    return people
+      .filter(p => p.level >= range[0] && p.level <= range[1])
+      .filter(p => (p.cohorts || []).includes(gapCohort))
+      .map(p => {
+        const target = getTarget(p, settings);
+        const fit = computeFitScore(p, selectedGap, target);
+        const { hours } = calcPersonHours(p.id, assignments, clients, settings);
+        const currentUtil = target > 0 ? (hours / target) * 100 : 0;
+        return { person: p, ...fit, currentUtil, target };
+      })
+      .sort((a, b) => b.score - a.score);
+  }, [selectedGap, people, assignments, clients, settings]);
+
+  const selectedCandidate = candidates.find(c => c.person.id === selectedCandidateId) || null;
+
+  const proposeFill = (gapAssignmentId, personId) => {
+    setProposals(prev => {
+      const withoutThisGap = prev.filter(p => p.gapAssignmentId !== gapAssignmentId);
+      return [...withoutThisGap, { gapAssignmentId, personId }];
+    });
+  };
+
   const toggleFilter = (key, value) => {
     setFilters(f => ({ ...f, [key]: f[key].includes(value) ? f[key].filter(v => v !== value) : [...f[key], value] }));
   };
@@ -2903,7 +2945,43 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
           )}
         </div>
         <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
-          <div style={{ color: '#3d3c38', fontSize: 13 }}>Candidates — next task.</div>
+          {!selectedGap ? (
+            <div style={{ color: '#3d3c38', fontSize: 13 }}>Select a gap to see matching candidates.</div>
+          ) : candidates.length === 0 ? (
+            <div style={{ color: '#2a2925', fontSize: 14, padding: 16, background: '#fff3e6', border: '1px solid #b85c00', borderRadius: 6 }}>
+              No candidates match this gap's level range and cohort. Consider widening the gap's level range or adjusting the cohort in the client roster.
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Candidates ({candidates.length})</div>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ ...css.th }}>Name</th>
+                    <th style={{ ...css.th }}>Level</th>
+                    <th style={{ ...css.th }}>Current Util</th>
+                    <th style={{ ...css.th }}>Projected</th>
+                    <th style={{ ...css.th }}>Fit</th>
+                    <th style={{ ...css.th }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {candidates.map(c => (
+                    <tr key={c.person.id} onClick={() => setSelectedCandidateId(c.person.id)} style={{ cursor: 'pointer', background: selectedCandidateId === c.person.id ? '#eef3fb' : 'transparent' }}>
+                      <td style={{ ...css.td, fontWeight: 600 }}>{c.person.name}</td>
+                      <td style={{ ...css.td }}>L{c.person.level}</td>
+                      <td style={{ ...css.td }}>{Math.round(c.currentUtil)}%</td>
+                      <td style={{ ...css.td, color: c.projected > 100 ? '#9b2335' : c.projected > 80 ? '#b85c00' : '#0077b6' }}>{Math.round(c.projected)}%</td>
+                      <td style={{ ...css.td }}>{c.score}</td>
+                      <td style={{ ...css.td }}>
+                        <button onClick={e => { e.stopPropagation(); proposeFill(selectedGap.id, c.person.id); }} style={{ ...css.btnSm('#000', '#fff'), fontSize: 12 }}>Propose</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
         </div>
       </div>
 
