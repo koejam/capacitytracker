@@ -968,17 +968,46 @@ function PeopleSummaryPanel({ data, onClose, onOpenDetail }) {
 function PeopleTab({ data, setData, onOpenDetail }) {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('name');
+  const [sortDir, setSortDir] = useState('asc');
   const [showAdd, setShowAdd] = useState(false);
 
   const { people, assignments, clients, settings } = data;
   const filtered = people.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.pod?.toLowerCase().includes(search.toLowerCase()));
 
+  const toggleSort = (key) => {
+    if (sortBy !== key) { setSortBy(key); setSortDir(key === 'level' || key === 'util' ? 'desc' : 'asc'); }
+    else if (sortDir === 'asc') { setSortDir('desc'); }
+    else { setSortDir('asc'); }
+  };
+  const sortArrow = (key) => sortBy !== key ? '' : (sortDir === 'asc' ? ' ▲' : ' ▼');
+
   const sorted = [...filtered].sort((a, b) => {
-    if (sortBy === 'name') return a.name.localeCompare(b.name);
-    if (sortBy === 'level') return a.level - b.level;
-    if (sortBy === 'util') return getPersonUtil(b, assignments, clients, settings).util - getPersonUtil(a, assignments, clients, settings).util;
+    const dir = sortDir === 'asc' ? 1 : -1;
+    let va, vb;
+    switch (sortBy) {
+      case 'name': va = (a.name || '').toLowerCase(); vb = (b.name || '').toLowerCase(); break;
+      case 'level': va = a.level || 0; vb = b.level || 0; break;
+      case 'cohort': va = (a.cohorts?.[0] || '').toLowerCase(); vb = (b.cohorts?.[0] || '').toLowerCase(); break;
+      case 'type': va = (a.type || '').toLowerCase(); vb = (b.type || '').toLowerCase(); break;
+      case 'pod': va = (a.pod || '').toLowerCase(); vb = (b.pod || '').toLowerCase(); break;
+      case 'manager': va = (a.manager || '').toLowerCase(); vb = (b.manager || '').toLowerCase(); break;
+      case 'util': va = getPersonUtil(a, assignments, clients, settings).util; vb = getPersonUtil(b, assignments, clients, settings).util; break;
+      default: return 0;
+    }
+    if (va < vb) return -1 * dir;
+    if (va > vb) return 1 * dir;
     return 0;
   });
+
+  const COLS = [
+    { key: 'name', label: 'Name' },
+    { key: 'level', label: 'Level' },
+    { key: 'cohort', label: 'Cohort' },
+    { key: 'type', label: 'Type' },
+    { key: 'pod', label: 'Pod' },
+    { key: 'manager', label: 'Manager' },
+    { key: 'util', label: 'Utilization' },
+  ];
 
   return (
     <div style={{ padding: 24, overflow: 'auto', height: '100%' }}>
@@ -986,11 +1015,6 @@ function PeopleTab({ data, setData, onOpenDetail }) {
         <h2 style={{ fontSize: 20, fontWeight: 700, color: '#000000' }}>People</h2>
         <div style={{ display: 'flex', gap: 8 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." style={{ ...css.input, width: 200 }} />
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={css.select}>
-            <option value="name">Sort: Name</option>
-            <option value="level">Sort: Level</option>
-            <option value="util">Sort: Utilization</option>
-          </select>
           <button onClick={() => setShowAdd(true)} style={css.btn()}>+ Add Person</button>
         </div>
       </div>
@@ -1005,7 +1029,7 @@ function PeopleTab({ data, setData, onOpenDetail }) {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                {['Name', 'Level', 'Cohort', 'Type', 'Pod', 'Manager', 'Utilization'].map(h => <th key={h} style={css.th}>{h}</th>)}
+                {COLS.map(c => <th key={c.key} style={{ ...css.th, cursor: 'pointer', userSelect: 'none' }} onClick={() => toggleSort(c.key)}>{c.label}{sortArrow(c.key)}</th>)}
               </tr>
             </thead>
             <tbody>
