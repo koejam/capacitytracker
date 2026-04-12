@@ -2738,6 +2738,16 @@ function WelcomeDashboard({ onLoadSample }) {
 }
 
 // ─── Main App ───────────────────────────────────────────────────
+// ─── Gaps Workbench ─────────────────────────────────────────────
+function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandbox, setSandbox }) {
+  return (
+    <div style={{ padding: 24, height: '100%', overflow: 'auto' }}>
+      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#000', marginTop: 0, marginBottom: 8 }}>Gaps</h1>
+      <p style={{ color: '#2a2925', fontSize: 14 }}>Workbench coming online — placeholder.</p>
+    </div>
+  );
+}
+
 export function App() {
   useEffect(() => { injectCSS(); }, []);
 
@@ -2746,6 +2756,7 @@ export function App() {
   const [data, setDataRaw] = useState(loadData);
   const [tab, setTab] = useState('dashboard');
   const [clientView, setClientView] = useState(null); // null or { clientId, filter }
+  const [proposals, setProposals] = useState([]); // staged gap fills: { gapAssignmentId, personId }[]
   const [detailPanel, setDetailPanel] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showGaps, setShowGaps] = useState(false);
@@ -2815,7 +2826,7 @@ export function App() {
     return <LoginScreen onLogin={(r, pod) => { setRole(r); if (pod) setPodFilter(pod); }} />;
   }
 
-  const TABS = role === 'admin' ? ['dashboard', 'clients', 'people', 'data', 'settings'] : ['dashboard', 'clients', 'people'];
+  const TABS = role === 'admin' ? ['dashboard', 'clients', 'people', 'gaps', 'data', 'settings'] : ['dashboard', 'clients', 'people', 'gaps'];
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", background: '#f7f5f0', boxSizing: 'border-box' }}>
@@ -2874,6 +2885,7 @@ export function App() {
                 openDetail(detail);
               }
             }} />}
+            {tab === 'gaps' && <GapsWorkbench data={activeData} setData={setData} settings={activeData.settings} proposals={proposals} setProposals={setProposals} sandbox={sandbox} setSandbox={setSandbox} />}
             {tab === 'data' && <DataTab data={activeData} setData={setData} />}
             {tab === 'settings' && <SettingsTab data={activeData} setData={setData} />}
           </>
