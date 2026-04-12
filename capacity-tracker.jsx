@@ -2871,6 +2871,20 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
 
   const selectedCandidate = candidates.find(c => c.person.id === selectedCandidateId) || null;
 
+  const opportunisticGaps = useMemo(() => {
+    if (!selectedCandidate) return [];
+    const p = selectedCandidate.person;
+    return gaps
+      .filter(g => g.id !== selectedGapId)
+      .filter(g => {
+        const range = CHAIR_LEVEL_MAP[g.chairPosition];
+        if (p.level < range[0] || p.level > range[1]) return false;
+        const cohort = assignmentCohort(g, people);
+        return (p.cohorts || []).includes(cohort);
+      })
+      .slice(0, 5);
+  }, [selectedCandidate, gaps, selectedGapId, people]);
+
   const proposeFill = (gapAssignmentId, personId) => {
     setProposals(prev => {
       const withoutThisGap = prev.filter(p => p.gapAssignmentId !== gapAssignmentId);
@@ -2989,7 +3003,41 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
       <div style={{ width: 400, borderLeft: '1px solid #e2ddd6', display: 'flex', flexDirection: 'column', background: '#fff' }}>
         <div style={{ flex: 1, overflow: 'auto', padding: 20, borderBottom: '1px solid #e2ddd6' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Impact</div>
-          <div style={{ color: '#3d3c38', fontSize: 13 }}>Select a candidate to preview capacity impact.</div>
+          {!selectedCandidate ? (
+            <div style={{ color: '#3d3c38', fontSize: 13 }}>Select a candidate to preview capacity impact.</div>
+          ) : (
+            <>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#000' }}>{selectedCandidate.person.name}</div>
+              <div style={{ fontSize: 13, color: '#2a2925', marginTop: 2 }}>L{selectedCandidate.person.level} · {selectedCandidate.person.pod || 'No pod'}</div>
+              <div style={{ marginTop: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#2a2925', marginBottom: 4 }}>
+                  <span>Current: {Math.round(selectedCandidate.currentUtil)}%</span>
+                  <span>Projected: {Math.round(selectedCandidate.projected)}%</span>
+                </div>
+                <div style={{ height: 10, background: '#e2ddd6', borderRadius: 5, overflow: 'hidden', position: 'relative' }}>
+                  <div style={{ height: '100%', width: Math.min(100, selectedCandidate.currentUtil) + '%', background: '#ccc8c0' }} />
+                  <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: Math.min(100, selectedCandidate.projected) + '%', background: selectedCandidate.projected > 100 ? '#9b2335' : selectedCandidate.projected > 80 ? '#b85c00' : '#0077b6', opacity: 0.85 }} />
+                </div>
+                <div style={{ fontSize: 12, color: '#2a2925', marginTop: 6 }}>
+                  +{Math.round(selectedCandidate.gapHours)}h on {Math.round(selectedCandidate.target)}h target
+                </div>
+              </div>
+              {opportunisticGaps.length > 0 && (
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Also matches</div>
+                  {opportunisticGaps.map(g => {
+                    const c = clients.find(cl => cl.id === g.clientId);
+                    return (
+                      <div key={g.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #e2ddd6', fontSize: 13 }}>
+                        <span style={{ color: '#000' }}>{c?.name || '—'} · {CHAIR_LABELS[g.chairPosition]}</span>
+                        <button onClick={() => proposeFill(g.id, selectedCandidate.person.id)} style={{ ...css.btnGhost('#000'), fontSize: 11, padding: '3px 8px' }}>Propose</button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
         </div>
         <div style={{ padding: 20, background: '#faf8f3', maxHeight: '40%', overflow: 'auto' }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Proposed fills ({proposals.length})</div>
