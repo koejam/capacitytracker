@@ -190,6 +190,158 @@ function injectCSS() {
 }
 
 // ─── Spinner Component ──────────────────────────────────────────
+// ─── Sandbox Diff Helper ────────────────────────────────────────
+function computeSandboxDiff(original, current) {
+  if (!original || !current) return { assignments: { added: [], removed: [], modified: [] }, people: { added: [], removed: [], modified: [] }, clients: { added: [], removed: [], modified: [] } };
+  const diffBy = (origArr, curArr, idKey = 'id', fields = null) => {
+    const origMap = new Map((origArr || []).map(x => [x[idKey], x]));
+    const curMap = new Map((curArr || []).map(x => [x[idKey], x]));
+    const added = [];
+    const removed = [];
+    const modified = [];
+    curMap.forEach((cur, id) => {
+      const orig = origMap.get(id);
+      if (!orig) { added.push(cur); return; }
+      const changedFields = [];
+      const compareFields = fields || Object.keys(cur);
+      for (const f of compareFields) {
+        const a = JSON.stringify(orig[f]);
+        const b = JSON.stringify(cur[f]);
+        if (a !== b) changedFields.push(f);
+      }
+      if (changedFields.length > 0) modified.push({ before: orig, after: cur, changedFields });
+    });
+    origMap.forEach((orig, id) => {
+      if (!curMap.has(id)) removed.push(orig);
+    });
+    return { added, removed, modified };
+  };
+  return {
+    assignments: diffBy(original.assignments, current.assignments, 'id', ['personId', 'clientId', 'chairPosition', 'hoursOverride']),
+    people: diffBy(original.people, current.people, 'id', ['name', 'level', 'cohorts', 'type', 'pod', 'manager', 'targetOverride', 'notes']),
+    clients: diffBy(original.clients, current.clients, 'id', ['name', 'revenue', 'complexity', 'clientStatus', 'endDate']),
+  };
+}
+
+function diffCount(diff) {
+  if (!diff) return 0;
+  return Object.values(diff).reduce((s, d) => s + d.added.length + d.removed.length + d.modified.length, 0);
+}
+
+// ─── Sandbox Banner ─────────────────────────────────────────────
+function SandboxBanner({ count, onViewChanges, onApply, onDiscard }) {
+  return (
+    <div style={{ background: '#fff3e6', borderBottom: '1px solid #b85c00', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+      <span style={{ fontSize: 18 }}>🧪</span>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#000' }}>Sandbox Mode</div>
+        <div style={{ fontSize: 12, color: '#2a2925' }}>
+          {count === 0 ? 'No changes yet — explore freely' : `${count} change${count === 1 ? '' : 's'} staged. Apply to save, or discard to exit.`}
+        </div>
+      </div>
+      <button onClick={onViewChanges} disabled={count === 0} style={{ ...css.btnGhost('#000'), fontSize: 13, padding: '6px 12px', opacity: count === 0 ? 0.4 : 1 }}>View changes</button>
+      <button onClick={onApply} disabled={count === 0} style={{ background: '#0077b6', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: count === 0 ? 'not-allowed' : 'pointer', fontFamily: "'Inter', system-ui, sans-serif", opacity: count === 0 ? 0.4 : 1 }}>Apply & Exit</button>
+      <button onClick={onDiscard} style={{ background: 'transparent', color: '#9b2335', border: '1px solid #9b2335', borderRadius: 6, padding: '5px 13px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>Discard & Exit</button>
+    </div>
+  );
+}
+
+// ─── Sandbox Changes Modal ──────────────────────────────────────
+function SandboxChangesModal({ diff, originalData, currentData, onClose, onOpenDetail }) {
+  if (!diff) return null;
+  const { assignments, people, clients } = diff;
+
+  const renderAssignment = (a, prefix, kind) => {
+    const client = (currentData?.clients || originalData?.clients || []).find(c => c.id === a.clientId);
+    const person = !isPlaceholder(a.personId) ? (currentData?.people || originalData?.people || []).find(p => p.id === a.personId) : null;
+    return (
+      <div style={{ padding: '8px 0', borderBottom: '1px solid #f2efe8', fontSize: 13 }}>
+        <span style={{ color: kind === 'added' ? '#0077b6' : kind === 'removed' ? '#9b2335' : '#b85c00', fontWeight: 600, marginRight: 8 }}>{prefix}</span>
+        <span style={{ fontWeight: 600, color: '#000' }}>{client?.name || a.clientId}</span>
+        <span style={{ color: '#2a2925' }}> · {CHAIR_LABELS[a.chairPosition]} · </span>
+        <span style={{ color: isPlaceholder(a.personId) ? '#b85c00' : '#000' }}>{person?.name || placeholderLabel(a.personId)}</span>
+      </div>
+    );
+  };
+
+  const renderAssignmentMod = (m) => {
+    const client = (currentData?.clients || []).find(c => c.id === m.after.clientId);
+    const personBefore = !isPlaceholder(m.before.personId) ? (currentData?.people || []).find(p => p.id === m.before.personId) : null;
+    const personAfter = !isPlaceholder(m.after.personId) ? (currentData?.people || []).find(p => p.id === m.after.personId) : null;
+    return (
+      <div style={{ padding: '8px 0', borderBottom: '1px solid #f2efe8', fontSize: 13 }}>
+        <span style={{ color: '#b85c00', fontWeight: 600, marginRight: 8 }}>MODIFIED</span>
+        <span style={{ fontWeight: 600, color: '#000' }}>{client?.name || m.after.clientId}</span>
+        <span style={{ color: '#2a2925' }}> · {CHAIR_LABELS[m.after.chairPosition]}</span>
+        <div style={{ marginTop: 4, paddingLeft: 16, fontSize: 12, color: '#2a2925' }}>
+          {m.changedFields.map(f => {
+            let before = m.before[f], after = m.after[f];
+            if (f === 'personId') {
+              before = isPlaceholder(before) ? placeholderLabel(before) : personBefore?.name || before;
+              after = isPlaceholder(after) ? placeholderLabel(after) : personAfter?.name || after;
+            }
+            return <div key={f}><code style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#f7f5f0', padding: '1px 5px', borderRadius: 3 }}>{f}</code>: <span style={{ color: '#9b2335' }}>{String(before)}</span> → <span style={{ color: '#0077b6' }}>{String(after)}</span></div>;
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const renderEntityMod = (m, nameKey = 'name') => (
+    <div style={{ padding: '8px 0', borderBottom: '1px solid #f2efe8', fontSize: 13 }}>
+      <span style={{ color: '#b85c00', fontWeight: 600, marginRight: 8 }}>MODIFIED</span>
+      <span style={{ fontWeight: 600, color: '#000' }}>{m.after[nameKey] || m.after.id}</span>
+      <div style={{ marginTop: 4, paddingLeft: 16, fontSize: 12, color: '#2a2925' }}>
+        {m.changedFields.map(f => (
+          <div key={f}><code style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#f7f5f0', padding: '1px 5px', borderRadius: 3 }}>{f}</code>: <span style={{ color: '#9b2335' }}>{JSON.stringify(m.before[f])}</span> → <span style={{ color: '#0077b6' }}>{JSON.stringify(m.after[f])}</span></div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const section = (title, items) => items.length === 0 ? null : (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>{title} ({items.length})</div>
+      {items}
+    </div>
+  );
+
+  const assignmentItems = [
+    ...assignments.added.map(a => <div key={'a-added-' + a.id}>{renderAssignment(a, 'ADDED', 'added')}</div>),
+    ...assignments.modified.map(m => <div key={'a-mod-' + m.after.id}>{renderAssignmentMod(m)}</div>),
+    ...assignments.removed.map(a => <div key={'a-rem-' + a.id}>{renderAssignment(a, 'REMOVED', 'removed')}</div>),
+  ];
+
+  const peopleItems = [
+    ...people.added.map(p => <div key={'p-added-' + p.id} style={{ padding: '8px 0', borderBottom: '1px solid #f2efe8', fontSize: 13 }}><span style={{ color: '#0077b6', fontWeight: 600, marginRight: 8 }}>ADDED</span><span style={{ fontWeight: 600, color: '#000' }}>{p.name}</span> · L{p.level} · {p.cohorts?.join(', ')}</div>),
+    ...people.modified.map(m => <div key={'p-mod-' + m.after.id}>{renderEntityMod(m)}</div>),
+    ...people.removed.map(p => <div key={'p-rem-' + p.id} style={{ padding: '8px 0', borderBottom: '1px solid #f2efe8', fontSize: 13 }}><span style={{ color: '#9b2335', fontWeight: 600, marginRight: 8 }}>REMOVED</span><span style={{ fontWeight: 600, color: '#000' }}>{p.name}</span></div>),
+  ];
+
+  const clientItems = [
+    ...clients.added.map(c => <div key={'c-added-' + c.id} style={{ padding: '8px 0', borderBottom: '1px solid #f2efe8', fontSize: 13 }}><span style={{ color: '#0077b6', fontWeight: 600, marginRight: 8 }}>ADDED</span><span style={{ fontWeight: 600, color: '#000' }}>{c.name}</span></div>),
+    ...clients.modified.map(m => <div key={'c-mod-' + m.after.id}>{renderEntityMod(m)}</div>),
+    ...clients.removed.map(c => <div key={'c-rem-' + c.id} style={{ padding: '8px 0', borderBottom: '1px solid #f2efe8', fontSize: 13 }}><span style={{ color: '#9b2335', fontWeight: 600, marginRight: 8 }}>REMOVED</span><span style={{ fontWeight: 600, color: '#000' }}>{c.name}</span></div>),
+  ];
+
+  return (
+    <Modal onClose={onClose} width="min(780px, 95vw)">
+      <div style={{ padding: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#000' }}>Sandbox Changes</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#3d3c38' }}>✕</button>
+        </div>
+        {section('Assignments', assignmentItems)}
+        {section('People', peopleItems)}
+        {section('Clients', clientItems)}
+        {assignmentItems.length === 0 && peopleItems.length === 0 && clientItems.length === 0 && (
+          <div style={{ color: '#3d3c38', fontSize: 14 }}>No changes yet.</div>
+        )}
+      </div>
+    </Modal>
+  );
+}
+
 function Spinner({ size = 32 }) {
   return <div style={{ width: size, height: size, border: '3px solid #e2ddd6', borderTopColor: '#000000', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />;
 }
@@ -2929,7 +3081,7 @@ function GapRow({ gap, clients, people, selected, hasProposal, onSelect }) {
   );
 }
 
-function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandbox, setSandbox, setSandboxData }) {
+function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandbox, setSandbox, setSandboxData, enterSandboxWith }) {
   const { people, clients, assignments } = data;
   const [selectedGapId, setSelectedGapId] = useState(null);
   const [selectedCandidateId, setSelectedCandidateId] = useState(null);
@@ -3093,15 +3245,8 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
       return { ...a, personId: proposalMap.get(a.id), lastModified: new Date().toISOString() };
     });
     // Clone current active data into sandbox with proposals applied
-    const clone = {
-      ...data,
-      assignments: updatedAssignments,
-      people: [...data.people],
-      clients: [...data.clients],
-      settings: { ...data.settings },
-    };
-    setSandboxData(clone);
-    setSandbox(true);
+    const clone = JSON.parse(JSON.stringify({ ...data, assignments: updatedAssignments }));
+    enterSandboxWith(clone);
     setProposals([]);
     setSelectedGapId(null);
     setSelectedCandidateId(null);
@@ -3303,6 +3448,7 @@ export function App() {
   const [rosterContext, setRosterContext] = useState(null);
   const [gapNotesId, setGapNotesId] = useState(null);
   const [budgetModal, setBudgetModal] = useState(null);
+  const [showSandboxChanges, setShowSandboxChanges] = useState(false);
 
   // Sandbox state
   const [sandbox, setSandbox] = useState(false);
@@ -3323,6 +3469,8 @@ export function App() {
   };
 
   const activeData = sandbox ? sandboxData : data;
+  const sandboxDiff = useMemo(() => sandbox ? computeSandboxDiff(originalData, sandboxData) : null, [sandbox, originalData, sandboxData]);
+  const sandboxChangeCount = diffCount(sandboxDiff);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -3355,6 +3503,12 @@ export function App() {
   const enterSandbox = () => {
     setOriginalData(JSON.parse(JSON.stringify(data)));
     setSandboxData(JSON.parse(JSON.stringify(data)));
+    setSandbox(true);
+  };
+
+  const enterSandboxWith = (clone) => {
+    setOriginalData(JSON.parse(JSON.stringify(data)));
+    setSandboxData(clone);
     setSandbox(true);
   };
 
@@ -3396,6 +3550,16 @@ export function App() {
           <button onClick={() => { setRole(null); setPodFilter(null); }} style={{ background: 'transparent', border: '1px solid #3b4268', color: '#8b92a5', borderRadius: 6, padding: '5px 12px', fontSize: 13, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>Sign Out</button>
         </div>
       </div>
+
+      {/* Sandbox Banner */}
+      {sandbox && (
+        <SandboxBanner
+          count={sandboxChangeCount}
+          onViewChanges={() => setShowSandboxChanges(true)}
+          onApply={() => { exitSandbox(true); setShowSandboxChanges(false); }}
+          onDiscard={() => { if (sandboxChangeCount === 0 || confirm('Discard all sandbox changes?')) { exitSandbox(false); setShowSandboxChanges(false); } }}
+        />
+      )}
 
       {/* Main Content */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
@@ -3451,13 +3615,24 @@ export function App() {
                 openDetail(detail);
               }
             }} />}
-            {tab === 'gaps' && <GapsWorkbench data={activeData} setData={setData} settings={activeData.settings} proposals={proposals} setProposals={setProposals} sandbox={sandbox} setSandbox={setSandbox} setSandboxData={setSandboxData} />}
+            {tab === 'gaps' && <GapsWorkbench data={activeData} setData={setData} settings={activeData.settings} proposals={proposals} setProposals={setProposals} sandbox={sandbox} setSandbox={setSandbox} setSandboxData={setSandboxData} enterSandboxWith={enterSandboxWith} />}
             {tab === 'data' && <DataTab data={activeData} setData={setData} />}
             {tab === 'settings' && <SettingsTab data={activeData} setData={setData} />}
           </>
         )}
 
         {/* Detail Panels — PersonDetail is now rendered via personView (sidebar mode) */}
+
+        {/* Sandbox Changes Modal */}
+        {showSandboxChanges && sandbox && (
+          <SandboxChangesModal
+            diff={sandboxDiff}
+            originalData={originalData}
+            currentData={sandboxData}
+            onClose={() => setShowSandboxChanges(false)}
+            onOpenDetail={openDetail}
+          />
+        )}
 
         {/* People Summary */}
         {showPeopleSummary && <PeopleSummaryPanel data={activeData} onClose={() => setShowPeopleSummary(false)} onOpenDetail={openDetail} />}
