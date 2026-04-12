@@ -2896,6 +2896,45 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
     setFilters(f => ({ ...f, [key]: f[key].includes(value) ? f[key].filter(v => v !== value) : [...f[key], value] }));
   };
 
+  const trayRows = useMemo(() => {
+    const byPerson = {};
+    proposals.forEach(p => { (byPerson[p.personId] = byPerson[p.personId] || []).push(p); });
+    return proposals.map(p => {
+      const gap = assignments.find(a => a.id === p.gapAssignmentId);
+      const client = gap ? clients.find(c => c.id === gap.clientId) : null;
+      const person = people.find(pp => pp.id === p.personId);
+      if (!gap || !person) return null;
+      const target = getTarget(person, settings);
+      const { hours } = calcPersonHours(person.id, assignments, clients, settings);
+      const cumulativeHours = byPerson[p.personId].reduce((sum, pr) => {
+        const g = assignments.find(a => a.id === pr.gapAssignmentId);
+        if (!g) return sum;
+        const cl = clients.find(c => c.id === g.clientId);
+        return sum + (g.hoursOverride || (cl ? calcHours(cl.complexity, g.chairPosition, settings) : 0));
+      }, 0);
+      const projected = target > 0 ? ((hours + cumulativeHours) / target) * 100 : 0;
+      return { proposal: p, gap, client, person, projected };
+    }).filter(Boolean);
+  }, [proposals, assignments, clients, people, settings]);
+
+  const traySummary = useMemo(() => ({
+    count: proposals.length,
+    peopleAffected: new Set(proposals.map(p => p.personId)).size,
+    clientsAffected: new Set(trayRows.map(r => r.client?.id).filter(Boolean)).size,
+  }), [proposals, trayRows]);
+
+  const removeProposal = (gapAssignmentId) => setProposals(prev => prev.filter(p => p.gapAssignmentId !== gapAssignmentId));
+  const clearAllProposals = () => setProposals([]);
+
+  const commitAll = () => {
+    // Implemented in Task 10
+    alert('Commit all — wiring next task');
+  };
+  const openInSandbox = () => {
+    // Implemented in Task 10
+    alert('Open in Sandbox — wiring next task');
+  };
+
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden', background: '#f7f5f0' }}>
       {/* LEFT PANE */}
@@ -3039,9 +3078,36 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
             </>
           )}
         </div>
-        <div style={{ padding: 20, background: '#faf8f3', maxHeight: '40%', overflow: 'auto' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Proposed fills ({proposals.length})</div>
-          <div style={{ color: '#3d3c38', fontSize: 13 }}>No proposals yet.</div>
+        <div style={{ padding: 20, background: '#faf8f3', maxHeight: '45%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Proposed fills ({traySummary.count})</div>
+            {traySummary.count > 0 && (
+              <button onClick={clearAllProposals} style={{ ...css.btnGhost('#2a2925'), fontSize: 11, padding: '3px 8px' }}>Clear all</button>
+            )}
+          </div>
+          {traySummary.count === 0 ? (
+            <div style={{ color: '#3d3c38', fontSize: 13 }}>No proposals yet. Click "Propose" on a candidate to stage a fill.</div>
+          ) : (
+            <>
+              <div style={{ fontSize: 12, color: '#2a2925' }}>{traySummary.count} proposals · {traySummary.peopleAffected} people · {traySummary.clientsAffected} clients</div>
+              {trayRows.map(r => (
+                <div key={r.proposal.gapAssignmentId} style={{ background: '#fff', border: '1px solid #e2ddd6', borderRadius: 6, padding: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ fontSize: 13 }}>
+                      <div style={{ fontWeight: 600, color: '#000' }}>{r.client?.name || '—'}</div>
+                      <div style={{ fontSize: 12, color: '#2a2925' }}>{CHAIR_LABELS[r.gap.chairPosition]} → {r.person.name}</div>
+                      <div style={{ fontSize: 12, color: r.projected > 100 ? '#9b2335' : r.projected > 80 ? '#b85c00' : '#0077b6', marginTop: 2 }}>Projected: {Math.round(r.projected)}%</div>
+                    </div>
+                    <button onClick={() => removeProposal(r.proposal.gapAssignmentId)} style={{ ...css.btnGhost('#9b2335'), fontSize: 11, padding: '3px 8px', alignSelf: 'start' }}>Remove</button>
+                  </div>
+                </div>
+              ))}
+              <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                <button onClick={commitAll} style={{ ...css.btn('#000', '#fff'), flex: 1 }}>Commit all</button>
+                <button onClick={openInSandbox} style={{ ...css.btn('#1d4e89', '#fff'), flex: 1 }}>Open in Sandbox</button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
