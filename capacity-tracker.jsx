@@ -25,9 +25,9 @@ const COHORT_COLORS = {
   Service: { bg: '#e0f4ff', fg: '#0077b6' },
   Financial: { bg: '#fff3e6', fg: '#b85c00' },
   Advisory: { bg: '#eef3fb', fg: '#1d4e89' },
-  Other: { bg: '#f2efe8', fg: '#6e6a62' },
+  Other: { bg: '#f2efe8', fg: '#2a2925' },
 };
-const COMPLEXITY_COLORS = { 1: '#8a8680', 2: '#1d4e89', 3: '#b85c00', 4: '#5c3d8f', 5: '#9b2335' };
+const COMPLEXITY_COLORS = { 1: '#3d3c38', 2: '#1d4e89', 3: '#b85c00', 4: '#5c3d8f', 5: '#9b2335' };
 const ADMIN_HASH = 'c42152dba91420e2defa3b908e0d87954736e19740709b1b9a9e7bb5ab4c2dd5';
 
 const CLIENT_STATUSES = ['Active', 'Prospect', 'Won'];
@@ -125,7 +125,7 @@ const css = {
   // Design tokens
   colors: {
     bg: '#f7f5f0', surface: '#fff', border: '#e2ddd6', border2: '#ccc8c0',
-    ink: '#1a1916', inkDim: '#8a8680', inkMuted: '#6e6a62', inkFaint: '#c4c0b8',
+    ink: '#000000', inkDim: '#3d3c38', inkMuted: '#2a2925', inkFaint: '#3d3c38',
     green: '#0077b6', greenBg: '#e0f4ff', amber: '#b85c00', amberBg: '#fff3e6',
     red: '#9b2335', redBg: '#fdf0f2', blue: '#1d4e89', blueBg: '#eef3fb',
     purple: '#5c3d8f', purpleBg: '#f3effe',
@@ -172,12 +172,12 @@ const GLOBAL_CSS = `
 button:hover { filter: brightness(0.95); }
 button:active { transform: scale(0.97); }
 button:disabled { opacity: 0.5; pointer-events: none; }
-input:focus, select:focus, textarea:focus { border-color: #1a1916 !important; box-shadow: 0 0 0 2px rgba(26,25,22,0.1) !important; }
+input:focus, select:focus, textarea:focus { border-color: #000000 !important; box-shadow: 0 0 0 2px rgba(26,25,22,0.1) !important; }
 tr:hover td { background: #f2efe8; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #ccc8c0; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #8a8680; }
+::-webkit-scrollbar-thumb:hover { background: #3d3c38; }
 @media print { * { transition: none !important; } }
 `;
 
@@ -191,7 +191,7 @@ function injectCSS() {
 
 // ─── Spinner Component ──────────────────────────────────────────
 function Spinner({ size = 32 }) {
-  return <div style={{ width: size, height: size, border: '3px solid #e2ddd6', borderTopColor: '#1a1916', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />;
+  return <div style={{ width: size, height: size, border: '3px solid #e2ddd6', borderTopColor: '#000000', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />;
 }
 
 // ─── SearchSelect Component ─────────────────────────────────────
@@ -212,8 +212,8 @@ function SearchSelect({ options, value, onChange, placeholder = 'Select...', sty
   return (
     <div ref={ref} style={{ position: 'relative', ...style }}>
       <div onClick={() => setOpen(!open)} style={{ ...css.input, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff' }}>
-        <span style={{ color: value ? '#1a1916' : '#c4c0b8' }}>{display}</span>
-        <span style={{ color: '#c4c0b8', fontSize: 10 }}>▼</span>
+        <span style={{ color: value ? '#000000' : '#8a8680' }}>{display}</span>
+        <span style={{ color: '#8a8680', fontSize: 10 }}>▼</span>
       </div>
       {open && (
         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #e2ddd6', borderRadius: 6, zIndex: 100, marginTop: 4, maxHeight: 240, overflow: 'auto' }}>
@@ -225,7 +225,7 @@ function SearchSelect({ options, value, onChange, placeholder = 'Select...', sty
             const lab = o.label || o;
             return <div key={i} onClick={() => { onChange(val); setOpen(false); setSearch(''); }} style={{ padding: '8px 12px', cursor: 'pointer', fontSize: 14, background: val === value ? '#f2efe8' : 'transparent' }}>{lab}</div>;
           })}
-          {filtered.length === 0 && <div style={{ padding: '8px 12px', color: '#c4c0b8', fontSize: 13 }}>No results</div>}
+          {filtered.length === 0 && <div style={{ padding: '8px 12px', color: '#8a8680', fontSize: 13 }}>No results</div>}
         </div>
       )}
     </div>
@@ -531,8 +531,8 @@ function LoginScreen({ onLogin }) {
   return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f7f5f0', fontFamily: css.fonts.body }}>
       <div style={{ ...css.card, width: 400, textAlign: 'center', animation: 'fadeIn 0.3s ease' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1a1916', marginBottom: 4, fontFamily: css.fonts.heading }}>TeamScope</h1>
-        <p style={{ color: '#8a8680', fontSize: 14, marginBottom: 24, fontFamily: css.fonts.mono }}>{mode === 'admin' ? 'Admin Access' : 'Enter your access code'}</p>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#000000', marginBottom: 4, fontFamily: css.fonts.heading }}>TeamScope</h1>
+        <p style={{ color: '#3d3c38', fontSize: 14, marginBottom: 24, fontFamily: css.fonts.mono }}>{mode === 'admin' ? 'Admin Access' : 'Enter your access code'}</p>
         <input
           type={mode === 'admin' ? 'password' : 'text'}
           value={value}
@@ -567,7 +567,7 @@ function UtilBar({ util, prospectUtil = 0, target = 100, width = '100%', height 
         )}
         <div style={{ height: '100%', width: (clampedUtil / 150) * 100 + '%', background: barColor, borderRadius: height / 2, transition: 'width 0.3s ease' }} />
       </div>
-      {showLabel && <span style={{ position: 'absolute', right: 4, top: 0, lineHeight: height + 'px', fontSize: 11, fontWeight: 600, color: '#8a8680' }}>{pct(util)}</span>}
+      {showLabel && <span style={{ position: 'absolute', right: 4, top: 0, lineHeight: height + 'px', fontSize: 11, fontWeight: 600, color: '#3d3c38' }}>{pct(util)}</span>}
     </div>
   );
 }
@@ -651,18 +651,18 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
       <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 14, flexWrap: 'wrap' }}>
         {/* Inline metrics */}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, cursor: 'pointer' }} onClick={onOpenPeopleSummary}>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#1a1916', fontFamily: css.fonts.mono }}>{people.length}</span>
-          <span style={{ fontSize: 12, color: '#8a8680', fontFamily: css.fonts.mono }}>people</span>
+          <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: css.fonts.mono }}>{people.length}</span>
+          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.mono }}>people</span>
         </div>
         <div style={{ width: 1, height: 20, background: '#e2ddd6' }} />
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#1a1916', fontFamily: css.fonts.mono }}>{totalRevenue > 0 ? fmtDol(totalRevenue) : '--'}</span>
-          <span style={{ fontSize: 12, color: '#8a8680', fontFamily: css.fonts.mono }}>revenue</span>
+          <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: css.fonts.mono }}>{totalRevenue > 0 ? fmtDol(totalRevenue) : '--'}</span>
+          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.mono }}>revenue</span>
         </div>
         <div style={{ width: 1, height: 20, background: '#e2ddd6' }} />
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
           <span style={{ fontSize: 22, fontWeight: 800, color: utilColor(avgUtil, settings.thresholds), fontFamily: css.fonts.mono }}>{pct(avgUtil)}</span>
-          <span style={{ fontSize: 12, color: '#8a8680', fontFamily: css.fonts.mono }}>avg util</span>
+          <span style={{ fontSize: 12, color: '#3d3c38', fontFamily: css.fonts.mono }}>avg util</span>
         </div>
         {/* Spacer */}
         <div style={{ flex: 1 }} />
@@ -688,7 +688,7 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
 
       {/* Filter indicator */}
       {activeFilter && (
-        <div style={{ fontSize: 12, color: '#8a8680', marginBottom: 8, fontFamily: css.fonts.mono }}>
+        <div style={{ fontSize: 12, color: '#3d3c38', marginBottom: 8, fontFamily: css.fonts.mono }}>
           Showing {filteredRows.length} of {clientRows.length} clients
           <span style={{ marginLeft: 8, color: '#1d4e89', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setActiveFilter(null)}>clear</span>
         </div>
@@ -718,13 +718,13 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
                     style={{ cursor: 'pointer' }}
                   >
                     <td style={css.td}>
-                      <span style={{ fontWeight: 600, color: '#1a1916' }}>{c.name}</span>
+                      <span style={{ fontWeight: 600, color: '#000000' }}>{c.name}</span>
                     </td>
                     <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13 }}>
-                      {c.revenue ? fmtDol(c.revenue) : <span style={{ color: '#c4c0b8' }}>—</span>}
+                      {c.revenue ? fmtDol(c.revenue) : <span style={{ color: '#8a8680' }}>—</span>}
                     </td>
                     <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13 }}>
-                      {cost > 0 ? fmtDol(cost) : <span style={{ color: '#c4c0b8' }}>—</span>}
+                      {cost > 0 ? fmtDol(cost) : <span style={{ color: '#8a8680' }}>—</span>}
                     </td>
                     <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13 }}>
                       {teamSize}
@@ -736,14 +736,14 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
                       {gaps.length > 0 ? (
                         <span style={{ color: '#9b2335', fontWeight: 700 }}>{gaps.length}</span>
                       ) : (
-                        <span style={{ color: '#c4c0b8' }}>—</span>
+                        <span style={{ color: '#8a8680' }}>—</span>
                       )}
                     </td>
                     <td style={css.td}>
                       {c.clientStatus && (
                         <span style={css.badge(
                           c.clientStatus === 'Active' ? '#e0f4ff' : c.clientStatus === 'Won' ? '#e6f9ef' : '#f2efe8',
-                          c.clientStatus === 'Active' ? '#0077b6' : c.clientStatus === 'Won' ? '#1a7a4a' : '#6e6a62'
+                          c.clientStatus === 'Active' ? '#0077b6' : c.clientStatus === 'Won' ? '#1a7a4a' : '#2a2925'
                         )}>{c.clientStatus}</span>
                       )}
                     </td>
@@ -795,7 +795,7 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
           {/* Footer totals */}
           <tfoot>
             <tr style={{ background: '#f7f5f0', fontWeight: 700 }}>
-              <td style={{ ...css.td, fontWeight: 700, color: '#1a1916', borderTop: '2px solid #e2ddd6' }}>
+              <td style={{ ...css.td, fontWeight: 700, color: '#000000', borderTop: '2px solid #e2ddd6' }}>
                 {filteredRows.length} client{filteredRows.length !== 1 ? 's' : ''}
               </td>
               <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13, fontWeight: 700, borderTop: '2px solid #e2ddd6' }}>
@@ -808,7 +808,7 @@ function Dashboard({ data, onOpenDetail, onOpenGaps, onOpenPeopleSummary, onNavi
                 {footerTeam}
               </td>
               <td style={{ ...css.td, borderTop: '2px solid #e2ddd6' }} />
-              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13, fontWeight: 700, color: footerGaps > 0 ? '#9b2335' : '#c4c0b8', borderTop: '2px solid #e2ddd6' }}>
+              <td style={{ ...css.td, textAlign: 'right', fontFamily: css.fonts.mono, fontSize: 13, fontWeight: 700, color: footerGaps > 0 ? '#9b2335' : '#8a8680', borderTop: '2px solid #e2ddd6' }}>
                 {footerGaps > 0 ? footerGaps : '—'}
               </td>
               <td style={{ ...css.td, borderTop: '2px solid #e2ddd6' }} />
@@ -870,7 +870,7 @@ function PeopleSummaryPanel({ data, onClose, onOpenDetail }) {
           {['all', 'large', 'mid'].map(f => (
             <button key={f} onClick={() => setMarketFilter(f)} style={{ background: marketFilter === f ? '#1d4e89' : '#3b4268', color: marketFilter === f ? '#fff' : '#8b92a5', border: 'none', borderRadius: 5, padding: '3px 10px', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>{f === 'all' ? 'All' : f === 'large' ? 'Large' : 'Mid'}</button>
           ))}
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#8a8680', fontSize: 18, cursor: 'pointer', marginLeft: 8 }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#3d3c38', fontSize: 18, cursor: 'pointer', marginLeft: 8 }}>✕</button>
         </div>
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
@@ -884,8 +884,8 @@ function PeopleSummaryPanel({ data, onClose, onOpenDetail }) {
             { label: 'Unassigned', value: unassigned },
           ].map((s, i) => (
             <div key={i} style={{ ...css.card, flex: '1 1 100px', textAlign: 'center', padding: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#8a8680', marginBottom: 4 }}>{s.label}</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#1a1916' }}>{s.value}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38', marginBottom: 4 }}>{s.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#000000' }}>{s.value}</div>
             </div>
           ))}
         </div>
@@ -927,7 +927,7 @@ function PeopleSummaryPanel({ data, onClose, onOpenDetail }) {
               <div style={css.sectionTitle}>{title}</div>
               {list.map(u => (
                 <div key={u.person.id} onClick={() => onOpenDetail({ type: 'person', id: u.person.id })} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', cursor: 'pointer', fontSize: 13 }}>
-                  <span style={{ color: '#1a1916', fontWeight: 500 }}>{u.person.name}</span>
+                  <span style={{ color: '#000000', fontWeight: 500 }}>{u.person.name}</span>
                   <span style={{ fontFamily: "'Inter', system-ui, sans-serif", color: u.util > 100 ? '#9b2335' : u.util < 60 ? '#f59e0b' : '#0077b6' }}>{pct(u.util)}</span>
                 </div>
               ))}
@@ -959,7 +959,7 @@ function PeopleTab({ data, setData, onOpenDetail }) {
   return (
     <div style={{ padding: 24, overflow: 'auto', height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1916' }}>People</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#000000' }}>People</h2>
         <div style={{ display: 'flex', gap: 8 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." style={{ ...css.input, width: 200 }} />
           <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={css.select}>
@@ -972,7 +972,7 @@ function PeopleTab({ data, setData, onOpenDetail }) {
       </div>
 
       {sorted.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#c4c0b8' }}>
+        <div style={{ textAlign: 'center', padding: 60, color: '#8a8680' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>👥</div>
           <div style={{ fontSize: 16 }}>No team members yet</div>
         </div>
@@ -989,12 +989,12 @@ function PeopleTab({ data, setData, onOpenDetail }) {
                 const u = getPersonUtil(p, assignments, clients, settings);
                 return (
                   <tr key={p.id} onClick={() => onOpenDetail({ type: 'person', id: p.id })} style={{ cursor: 'pointer' }}>
-                    <td style={css.td}><span style={{ fontWeight: 600, color: '#1a1916' }}>{p.name}</span></td>
+                    <td style={css.td}><span style={{ fontWeight: 600, color: '#000000' }}>{p.name}</span></td>
                     <td style={css.td}>L{p.level}</td>
                     <td style={css.td}>{p.cohorts.map(c => <span key={c} style={{ ...css.badge(COHORT_COLORS[c]?.bg, COHORT_COLORS[c]?.fg), marginRight: 4 }}>{c}</span>)}</td>
                     <td style={css.td}>{p.type}</td>
                     <td style={css.td}>{p.pod}</td>
-                    <td style={css.td}><span style={{ fontSize: 13, color: '#8a8680' }}>{p.manager || '–'}</span></td>
+                    <td style={css.td}><span style={{ fontSize: 13, color: '#3d3c38' }}>{p.manager || '–'}</span></td>
                     <td style={{ ...css.td, minWidth: 130 }}><UtilBar util={u.util} prospectUtil={u.prospectUtil} height={14} /></td>
                   </tr>
                 );
@@ -1020,7 +1020,7 @@ function PersonForm({ data, person, onSave, onClose }) {
   return (
     <Modal onClose={onClose} width="min(520px, 95vw)">
       <div style={{ padding: 24 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1916', marginBottom: 16 }}>{person ? 'Edit Person' : 'Add Person'}</h3>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#000000', marginBottom: 16 }}>{person ? 'Edit Person' : 'Add Person'}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
             <div style={css.label}>Name</div>
@@ -1074,7 +1074,7 @@ function PersonForm({ data, person, onSave, onClose }) {
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-          <button onClick={onClose} style={css.btn('#e2ddd6', '#8a8680')}>Cancel</button>
+          <button onClick={onClose} style={css.btn('#e2ddd6', '#3d3c38')}>Cancel</button>
           <button onClick={() => form.name.trim() && onSave(form)} style={css.btn()} disabled={!form.name.trim()}>Save</button>
         </div>
       </div>
@@ -1131,17 +1131,17 @@ function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
             {/* Reporting hierarchy */}
             {(managerPerson || reports.length > 0) && (
               <div style={{ background: '#252b45', borderRadius: 8, padding: '6px 12px', fontSize: 12, maxWidth: 200 }}>
-                {managerPerson && <div style={{ color: '#8a8680', cursor: 'pointer' }} onClick={() => onOpenDetail({ type: 'person', id: managerPerson.id })}>↑ {managerPerson.name}</div>}
+                {managerPerson && <div style={{ color: '#3d3c38', cursor: 'pointer' }} onClick={() => onOpenDetail({ type: 'person', id: managerPerson.id })}>↑ {managerPerson.name}</div>}
                 <div style={{ fontWeight: 600, color: '#fff', marginTop: 2 }}>{person.name}</div>
-                {reports.slice(0, 3).map(r => <div key={r.id} style={{ color: '#8a8680', cursor: 'pointer', marginTop: 1 }} onClick={() => onOpenDetail({ type: 'person', id: r.id })}>↳ {r.name}</div>)}
-                {reports.length > 3 && <div style={{ color: '#8a8680', marginTop: 1 }}>+{reports.length - 3} more</div>}
+                {reports.slice(0, 3).map(r => <div key={r.id} style={{ color: '#3d3c38', cursor: 'pointer', marginTop: 1 }} onClick={() => onOpenDetail({ type: 'person', id: r.id })}>↳ {r.name}</div>)}
+                {reports.length > 3 && <div style={{ color: '#3d3c38', marginTop: 1 }}>+{reports.length - 3} more</div>}
               </div>
             )}
             {/* Util badge */}
             <div style={{ background: uColor, color: '#fff', borderRadius: 8, padding: '6px 12px', fontWeight: 700, fontSize: 16, textAlign: 'center' }}>
               {pct(u.util)}
             </div>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#8a8680', fontSize: 18, cursor: 'pointer' }}>✕</button>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#3d3c38', fontSize: 18, cursor: 'pointer' }}>✕</button>
           </div>
         </div>
         {/* Pin visibility */}
@@ -1164,8 +1164,8 @@ function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
         {/* Utilization bar */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#8a8680' }}>Utilization</span>
-            <span style={{ fontSize: 13, fontFamily: "'Inter', system-ui, sans-serif", color: '#8a8680' }}>{Math.round(u.hours).toLocaleString()} / {u.target.toLocaleString()} hrs</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#3d3c38' }}>Utilization</span>
+            <span style={{ fontSize: 13, fontFamily: "'Inter', system-ui, sans-serif", color: '#3d3c38' }}>{Math.round(u.hours).toLocaleString()} / {u.target.toLocaleString()} hrs</span>
           </div>
           <UtilBar util={u.util} prospectUtil={u.prospectUtil} height={20} />
         </div>
@@ -1173,7 +1173,7 @@ function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
         {/* Client Assignments */}
         <div style={{ ...css.card, marginBottom: 16 }}>
           <div style={css.sectionTitle}>Client Assignments</div>
-          {personAssignments.length === 0 ? <div style={{ color: '#c4c0b8', fontSize: 13 }}>No assignments</div> : (
+          {personAssignments.length === 0 ? <div style={{ color: '#8a8680', fontSize: 13 }}>No assignments</div> : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr>{['Client', 'Chair', 'Cohort', 'Hours'].map(h => <th key={h} style={css.th}>{h}</th>)}</tr></thead>
               <tbody>
@@ -1185,7 +1185,7 @@ function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
                   return (
                     <tr key={a.id} onClick={() => onOpenDetail({ type: 'client', id: a.clientId })} style={{ cursor: 'pointer' }}>
                       <td style={css.td}>
-                        <span style={{ fontWeight: 500, color: isProspect ? '#1d4e89' : '#1a1916', fontStyle: isProspect ? 'italic' : 'normal' }}>{c.name}</span>
+                        <span style={{ fontWeight: 500, color: isProspect ? '#1d4e89' : '#000000', fontStyle: isProspect ? 'italic' : 'normal' }}>{c.name}</span>
                         {isProspect && <span style={{ ...css.badge('#eef3fb', '#1d4e89'), marginLeft: 6, fontSize: 10 }}>Prospect</span>}
                       </td>
                       <td style={css.td}>{CHAIR_LABELS[a.chairPosition]}</td>
@@ -1205,7 +1205,7 @@ function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
             <div style={css.sectionTitle}>Works With</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {worksWith.map(({ person: p, count }) => (
-                <span key={p.id} onClick={() => onOpenDetail({ type: 'person', id: p.id })} style={{ ...css.badge('#e2ddd6', '#6e6a62'), cursor: 'pointer', fontSize: 13 }}>
+                <span key={p.id} onClick={() => onOpenDetail({ type: 'person', id: p.id })} style={{ ...css.badge('#e2ddd6', '#2a2925'), cursor: 'pointer', fontSize: 13 }}>
                   {p.name} ({count})
                 </span>
               ))}
@@ -1216,7 +1216,7 @@ function PersonDetail({ data, setData, personId, onClose, onOpenDetail }) {
         {/* Edit Details (collapsible) */}
         <div style={css.card}>
           <div onClick={() => setEditing(!editing)} style={{ ...css.sectionTitle, cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}>
-            Edit Details <span style={{ fontSize: 12, color: '#8a8680' }}>{editing ? '▼' : '▶'}</span>
+            Edit Details <span style={{ fontSize: 12, color: '#3d3c38' }}>{editing ? '▼' : '▶'}</span>
           </div>
           {editing && (
             <PersonForm data={data} person={person} onSave={updated => {
@@ -1243,7 +1243,7 @@ function ClientsTab({ data, setData, onOpenDetail }) {
   return (
     <div style={{ padding: 24, overflow: 'auto', height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1916' }}>Clients</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#000000' }}>Clients</h2>
         <div style={{ display: 'flex', gap: 8 }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." style={{ ...css.input, width: 200 }} />
           <button onClick={() => setShowAdd(true)} style={css.btn()}>+ Add Client</button>
@@ -1251,7 +1251,7 @@ function ClientsTab({ data, setData, onOpenDetail }) {
       </div>
 
       {sorted.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#c4c0b8' }}>
+        <div style={{ textAlign: 'center', padding: 60, color: '#8a8680' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
           <div style={{ fontSize: 16 }}>No clients yet</div>
         </div>
@@ -1269,7 +1269,7 @@ function ClientsTab({ data, setData, onOpenDetail }) {
               return (
                 <tr key={c.id} onClick={() => onOpenDetail({ type: 'client', id: c.id })} style={{ cursor: 'pointer' }}>
                   <td style={css.td}>
-                    <span style={{ fontWeight: 600, color: isProspect ? '#1d4e89' : '#1a1916', fontStyle: isProspect ? 'italic' : 'normal' }}>{c.name}</span>
+                    <span style={{ fontWeight: 600, color: isProspect ? '#1d4e89' : '#000000', fontStyle: isProspect ? 'italic' : 'normal' }}>{c.name}</span>
                     {isProspect && <span style={{ ...css.badge('#eef3fb', '#1d4e89'), marginLeft: 6, fontSize: 10 }}>Prospect</span>}
                     {isWon && <span style={{ ...css.badge('#e0f4ff', '#0077b6'), marginLeft: 6, fontSize: 10 }}>Won</span>}
                   </td>
@@ -1302,7 +1302,7 @@ function ClientForm({ data, client, onSave, onClose }) {
   return (
     <Modal onClose={onClose} width="min(560px, 92vw)">
       <div style={{ padding: 24 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1916', marginBottom: 16 }}>{client ? 'Edit Client' : 'Add Client'}</h3>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#000000', marginBottom: 16 }}>{client ? 'Edit Client' : 'Add Client'}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
             <div style={css.label}>Name</div>
@@ -1358,7 +1358,7 @@ function ClientForm({ data, client, onSave, onClose }) {
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-          <button onClick={onClose} style={css.btn('#e2ddd6', '#8a8680')}>Cancel</button>
+          <button onClick={onClose} style={css.btn('#e2ddd6', '#3d3c38')}>Cancel</button>
           <button onClick={() => form.name.trim() && onSave(form)} style={css.btn()} disabled={!form.name.trim()}>Save</button>
         </div>
       </div>
@@ -1438,7 +1438,7 @@ function ClientSidebar({ data, clientId, onSelect, onBack, filter, onFilterChang
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {sorted.map(c => {
           const isActive = c.id === clientId;
-          const statusColor = c.clientStatus === 'Prospect' ? '#1d4e89' : c.clientStatus === 'Won' ? '#0077b6' : '#1a1916';
+          const statusColor = c.clientStatus === 'Prospect' ? '#1d4e89' : c.clientStatus === 'Won' ? '#0077b6' : '#000000';
           return (
             <div
               key={c.id}
@@ -1447,7 +1447,7 @@ function ClientSidebar({ data, clientId, onSelect, onBack, filter, onFilterChang
                 padding: '8px 10px',
                 cursor: 'pointer',
                 borderBottom: '1px solid #f2efe8',
-                borderLeft: isActive ? '3px solid #1a1916' : '3px solid transparent',
+                borderLeft: isActive ? '3px solid #000000' : '3px solid transparent',
                 background: isActive ? '#f7f5f0' : 'transparent',
                 fontSize: 13,
                 fontWeight: isActive ? 600 : 400,
@@ -1462,7 +1462,7 @@ function ClientSidebar({ data, clientId, onSelect, onBack, filter, onFilterChang
           );
         })}
         {sorted.length === 0 && (
-          <div style={{ padding: 12, fontSize: 12, color: '#c4c0b8', textAlign: 'center' }}>No clients</div>
+          <div style={{ padding: 12, fontSize: 12, color: '#8a8680', textAlign: 'center' }}>No clients</div>
         )}
       </div>
     </div>
@@ -1473,7 +1473,7 @@ function ClientSidebar({ data, clientId, onSelect, onBack, filter, onFilterChang
 function ClientDashboard({ data, setData, clientId, onBack, onOpenDetail, onOpenRoster }) {
   const { clients, assignments, people, settings, needs = [], clientNotes = [] } = data;
   const client = clients.find(c => c.id === clientId);
-  if (!client) return <div style={{ padding: 24, color: '#8a8680' }}>Client not found.</div>;
+  if (!client) return <div style={{ padding: 24, color: '#3d3c38' }}>Client not found.</div>;
 
   const clientAssignments = assignments.filter(a => a.clientId === clientId);
   const totalHours = calcClientHours(clientId, assignments, settings, client);
@@ -1527,11 +1527,11 @@ function ClientDashboard({ data, setData, clientId, onBack, onOpenDetail, onOpen
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ padding: '14px 24px', borderBottom: '2px solid #e2ddd6', background: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 22, fontWeight: 800, color: '#1a1916', fontFamily: "'Inter', system-ui, sans-serif" }}>{client.name}</span>
+        <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: "'Inter', system-ui, sans-serif" }}>{client.name}</span>
         <span style={css.badge(sc.bg, sc.fg)}>{client.clientStatus || 'Active'}</span>
         <span style={{ ...css.badge(COMPLEXITY_COLORS[client.complexity] + '22', COMPLEXITY_COLORS[client.complexity]), fontWeight: 700 }}>Complexity {client.complexity}</span>
-        {client.market && <span style={css.badge('#f2efe8', '#6e6a62')}>{client.market}</span>}
-        {client.endDate && <span style={{ fontSize: 13, color: '#8a8680', marginLeft: 4 }}>Ends {client.endDate}</span>}
+        {client.market && <span style={css.badge('#f2efe8', '#2a2925')}>{client.market}</span>}
+        {client.endDate && <span style={{ fontSize: 13, color: '#3d3c38', marginLeft: 4 }}>Ends {client.endDate}</span>}
       </div>
 
       {/* Scrollable body */}
@@ -1558,20 +1558,20 @@ function ClientDashboard({ data, setData, clientId, onBack, onOpenDetail, onOpen
                       {isPh ? (
                         <span style={{ ...css.badge(a.personId === '__TBD__' ? '#fff3e6' : '#fdf0f2', a.personId === '__TBD__' ? '#b85c00' : '#9b2335') }}>{placeholderLabel(a.personId)}</span>
                       ) : (
-                        <span onClick={() => onOpenDetail({ type: 'person', id: a.personId })} style={{ fontWeight: 500, color: '#1a1916', cursor: 'pointer', textDecoration: 'underline', textDecorationColor: '#e2ddd6' }}>{p?.name}</span>
+                        <span onClick={() => onOpenDetail({ type: 'person', id: a.personId })} style={{ fontWeight: 500, color: '#000000', cursor: 'pointer', textDecoration: 'underline', textDecorationColor: '#e2ddd6' }}>{p?.name}</span>
                       )}
                     </td>
                     <td style={css.td}>{CHAIR_LABELS[a.chairPosition]}</td>
                     <td style={css.td}><span style={css.badge(cohortColor.bg, cohortColor.fg)}>{cohort}</span></td>
                     <td style={css.td}><span style={{ fontFamily: "'Inter', system-ui, sans-serif", fontSize: 13 }}>{Math.round(h).toLocaleString()}</span></td>
                     <td style={{ ...css.td, minWidth: 80 }}>
-                      {u ? <UtilBar util={u.util} thresholds={settings.thresholds} /> : <span style={{ color: '#c4c0b8', fontSize: 12 }}>—</span>}
+                      {u ? <UtilBar util={u.util} thresholds={settings.thresholds} /> : <span style={{ color: '#8a8680', fontSize: 12 }}>—</span>}
                     </td>
                   </tr>
                 );
               })}
               {clientAssignments.length === 0 && (
-                <tr><td colSpan={5} style={{ ...css.td, color: '#c4c0b8', textAlign: 'center', padding: 20 }}>No team members assigned</td></tr>
+                <tr><td colSpan={5} style={{ ...css.td, color: '#8a8680', textAlign: 'center', padding: 20 }}>No team members assigned</td></tr>
               )}
             </tbody>
           </table>
@@ -1590,7 +1590,7 @@ function ClientDashboard({ data, setData, clientId, onBack, onOpenDetail, onOpen
             <div style={{ background: '#f7f5f0', borderRadius: 8, padding: 16, marginBottom: 16 }}>
               <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                 {['staffing', 'action'].map(t => (
-                  <button key={t} onClick={() => setNeedType(t)} style={css.btnSm(needType === t ? '#1a1916' : '#e2ddd6', needType === t ? '#fff' : '#8a8680')}>{t === 'staffing' ? 'Staffing Need' : 'Action Item'}</button>
+                  <button key={t} onClick={() => setNeedType(t)} style={css.btnSm(needType === t ? '#000000' : '#e2ddd6', needType === t ? '#fff' : '#3d3c38')}>{t === 'staffing' ? 'Staffing Need' : 'Action Item'}</button>
                 ))}
               </div>
               {needType === 'staffing' ? (
@@ -1634,27 +1634,27 @@ function ClientDashboard({ data, setData, clientId, onBack, onOpenDetail, onOpen
           )}
 
           {clientNeeds.length === 0 && !showNeedForm && (
-            <div style={{ color: '#c4c0b8', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No needs logged</div>
+            <div style={{ color: '#8a8680', fontSize: 13, textAlign: 'center', padding: '12px 0' }}>No needs logged</div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {clientNeeds.map(n => (
               <div key={n.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 10px', background: n.resolved ? '#f7f5f0' : '#fff', border: '1px solid #e2ddd6', borderRadius: 6, opacity: n.resolved ? 0.6 : 1 }}>
                 <div style={{ flex: 1 }}>
-                  <span style={css.badge(n.type === 'staffing' ? '#eef3fb' : '#f2efe8', n.type === 'staffing' ? '#1d4e89' : '#6e6a62')}>{n.type}</span>
+                  <span style={css.badge(n.type === 'staffing' ? '#eef3fb' : '#f2efe8', n.type === 'staffing' ? '#1d4e89' : '#2a2925')}>{n.type}</span>
                   {n.type === 'staffing' ? (
-                    <span style={{ marginLeft: 8, fontSize: 13, color: '#1a1916' }}>
+                    <span style={{ marginLeft: 8, fontSize: 13, color: '#000000' }}>
                       {[n.level, CHAIR_LABELS[n.chairPosition], n.cohort, n.timing].filter(Boolean).join(' · ')}
                     </span>
                   ) : (
-                    <span style={{ marginLeft: 8, fontSize: 13, color: '#1a1916' }}>{n.description}</span>
+                    <span style={{ marginLeft: 8, fontSize: 13, color: '#000000' }}>{n.description}</span>
                   )}
                 </div>
                 {n.type === 'action' && (
-                  <button onClick={() => setData(d => ({ ...d, needs: d.needs.map(x => x.id === n.id ? { ...x, resolved: !x.resolved } : x) }))} style={css.btnSm(n.resolved ? '#e2ddd6' : '#0077b6', n.resolved ? '#8a8680' : '#fff')}>
+                  <button onClick={() => setData(d => ({ ...d, needs: d.needs.map(x => x.id === n.id ? { ...x, resolved: !x.resolved } : x) }))} style={css.btnSm(n.resolved ? '#e2ddd6' : '#0077b6', n.resolved ? '#3d3c38' : '#fff')}>
                     {n.resolved ? 'Undo' : 'Done'}
                   </button>
                 )}
-                <button onClick={() => setData(d => ({ ...d, needs: d.needs.filter(x => x.id !== n.id) }))} style={{ background: 'none', border: 'none', color: '#c4c0b8', cursor: 'pointer', fontSize: 16, padding: '0 2px' }}>✕</button>
+                <button onClick={() => setData(d => ({ ...d, needs: d.needs.filter(x => x.id !== n.id) }))} style={{ background: 'none', border: 'none', color: '#8a8680', cursor: 'pointer', fontSize: 16, padding: '0 2px' }}>✕</button>
               </div>
             ))}
           </div>
@@ -1672,7 +1672,7 @@ function ClientDashboard({ data, setData, clientId, onBack, onOpenDetail, onOpen
             ].map(m => (
               <div key={m.label}>
                 <div style={css.label}>{m.label}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1916', fontFamily: "'Inter', system-ui, sans-serif" }}>{m.value}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#000000', fontFamily: "'Inter', system-ui, sans-serif" }}>{m.value}</div>
               </div>
             ))}
           </div>
@@ -1758,7 +1758,7 @@ function ClientDetail({ data, setData, clientId, onClose, onOpenDetail, onOpenRo
               {client.clientStatus === 'Won' && <span style={css.badge('#e0f4ff', '#0077b6')}>Won</span>}
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#8a8680', fontSize: 18, cursor: 'pointer' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#3d3c38', fontSize: 18, cursor: 'pointer' }}>✕</button>
         </div>
         {/* Prospect banner */}
         {isProspect && (
@@ -1778,8 +1778,8 @@ function ClientDetail({ data, setData, clientId, onClose, onOpenDetail, onOpenRo
             { label: 'Total Hours', value: Math.round(totalHours).toLocaleString() },
           ].map((m, i) => (
             <div key={i} style={{ ...css.card, flex: 1, textAlign: 'center', padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#8a8680' }}>{m.label}</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1916', marginTop: 2 }}>{m.value}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#3d3c38' }}>{m.label}</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#000000', marginTop: 2 }}>{m.value}</div>
             </div>
           ))}
         </div>
@@ -1808,7 +1808,7 @@ function ClientDetail({ data, setData, clientId, onClose, onOpenDetail, onOpenRo
                       {isPh ? (
                         <span style={{ ...css.badge(a.personId === '__TBD__' ? '#fff3e6' : '#fdf0f2', a.personId === '__TBD__' ? '#b85c00' : '#9b2335') }}>{placeholderLabel(a.personId)}</span>
                       ) : (
-                        <span onClick={() => onOpenDetail({ type: 'person', id: a.personId })} style={{ fontWeight: 500, color: '#1a1916', cursor: 'pointer' }}>{p?.name}</span>
+                        <span onClick={() => onOpenDetail({ type: 'person', id: a.personId })} style={{ fontWeight: 500, color: '#000000', cursor: 'pointer' }}>{p?.name}</span>
                       )}
                     </td>
                     <td style={css.td}>{CHAIR_LABELS[a.chairPosition]}</td>
@@ -1830,9 +1830,9 @@ function ClientDetail({ data, setData, clientId, onClose, onOpenDetail, onOpenRo
             <div style={css.sectionTitle}>Projects</div>
             {client.projects.map(proj => (
               <div key={proj.id} style={{ padding: '8px 0', borderBottom: '1px solid #e2ddd6' }}>
-                <div style={{ fontWeight: 600, color: '#1a1916' }}>{proj.name}</div>
-                <div style={{ fontSize: 13, color: '#8a8680' }}>{proj.description}</div>
-                <div style={{ fontSize: 12, color: '#c4c0b8', marginTop: 2 }}>{proj.startDate} → {proj.endDate} · {proj.hoursBudget} hrs · {proj.status}</div>
+                <div style={{ fontWeight: 600, color: '#000000' }}>{proj.name}</div>
+                <div style={{ fontSize: 13, color: '#3d3c38' }}>{proj.description}</div>
+                <div style={{ fontSize: 12, color: '#8a8680', marginTop: 2 }}>{proj.startDate} → {proj.endDate} · {proj.hoursBudget} hrs · {proj.status}</div>
               </div>
             ))}
           </div>
@@ -1841,7 +1841,7 @@ function ClientDetail({ data, setData, clientId, onClose, onOpenDetail, onOpenRo
         {/* Edit */}
         <div style={css.card}>
           <div onClick={() => setEditing(!editing)} style={{ ...css.sectionTitle, cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}>
-            Edit Details <span style={{ fontSize: 12, color: '#8a8680' }}>{editing ? '▼' : '▶'}</span>
+            Edit Details <span style={{ fontSize: 12, color: '#3d3c38' }}>{editing ? '▼' : '▶'}</span>
           </div>
           {editing && <ClientForm data={data} client={client} onSave={updated => {
             setData(d => ({ ...d, clients: d.clients.map(c => c.id === clientId ? { ...c, ...updated, lastModified: new Date().toISOString() } : c) }));
@@ -1881,7 +1881,7 @@ function StaffingGapsPanel({ data, setData, onClose, onOpenDetail, onOpenRoster,
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <button onClick={() => setFullscreen(f => !f)} style={{ background: 'none', border: '1px solid #3b4268', color: '#8b92a5', borderRadius: 4, padding: '2px 8px', fontSize: 12, cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif" }}>{fullscreen ? '⊡' : '⊞'}</button>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#8a8680', fontSize: 18, cursor: 'pointer' }}>✕</button>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#3d3c38', fontSize: 18, cursor: 'pointer' }}>✕</button>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
@@ -1896,7 +1896,7 @@ function StaffingGapsPanel({ data, setData, onClose, onOpenDetail, onOpenRoster,
           <>
             <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
               {['all', ...COHORTS].map(c => (
-                <button key={c} onClick={() => setCohortFilter(c)} style={{ ...css.btnSm(cohortFilter === c ? '#1d4e89' : '#e2ddd6', cohortFilter === c ? '#fff' : '#8a8680'), textTransform: 'capitalize' }}>{c}</button>
+                <button key={c} onClick={() => setCohortFilter(c)} style={{ ...css.btnSm(cohortFilter === c ? '#1d4e89' : '#e2ddd6', cohortFilter === c ? '#fff' : '#3d3c38'), textTransform: 'capitalize' }}>{c}</button>
               ))}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 12 }}>
@@ -1915,8 +1915,8 @@ function StaffingGapsPanel({ data, setData, onClose, onOpenDetail, onOpenRoster,
                       <span style={{ ...css.badge(g.personId === '__TBD__' ? '#fff3e6' : '#fdf0f2', g.personId === '__TBD__' ? '#b85c00' : '#9b2335') }}>{placeholderLabel(g.personId)}</span>
                       {pinCount > 0 && <span style={css.badge('#fff3e6', '#b85c00')}>📌 {pinCount}</span>}
                     </div>
-                    <div onClick={() => onOpenDetail({ type: 'client', id: g.clientId })} style={{ fontWeight: 600, color: '#1a1916', cursor: 'pointer', marginBottom: 4 }}>{c?.name}</div>
-                    <div style={{ fontSize: 13, color: '#8a8680', marginBottom: 8 }}>{CHAIR_LABELS[g.chairPosition]} · {cohort} · L{idealLo}-L{idealHi}</div>
+                    <div onClick={() => onOpenDetail({ type: 'client', id: g.clientId })} style={{ fontWeight: 600, color: '#000000', cursor: 'pointer', marginBottom: 4 }}>{c?.name}</div>
+                    <div style={{ fontSize: 13, color: '#3d3c38', marginBottom: 8 }}>{CHAIR_LABELS[g.chairPosition]} · {cohort} · L{idealLo}-L{idealHi}</div>
                     {bestMatch && (
                       <div style={{ fontSize: 13, color: '#0077b6', marginBottom: 8 }}>
                         💡 {bestMatch.name} (L{bestMatch.level}, {pct(getPersonUtil(bestMatch, assignments, clients, settings).util)} util)
@@ -1926,13 +1926,13 @@ function StaffingGapsPanel({ data, setData, onClose, onOpenDetail, onOpenRoster,
                       <button onClick={() => onOpenRoster && onOpenRoster({ clientId: g.clientId, assignmentId: g.id, chairPosition: g.chairPosition, cohort })} style={css.btnSm('#1d4e89', '#fff')}>Roster</button>
                       <button onClick={() => {
                         // Open gap notes
-                      }} style={css.btnSm('#e2ddd6', '#8a8680')}>Notes</button>
+                      }} style={css.btnSm('#e2ddd6', '#3d3c38')}>Notes</button>
                     </div>
                   </div>
                 );
               })}
             </div>
-            {filteredGaps.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#c4c0b8' }}>No gaps{cohortFilter !== 'all' ? ` for ${cohortFilter}` : ''}</div>}
+            {filteredGaps.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#8a8680' }}>No gaps{cohortFilter !== 'all' ? ` for ${cohortFilter}` : ''}</div>}
           </>
         )}
 
@@ -2002,7 +2002,7 @@ function StaffingGapsPanel({ data, setData, onClose, onOpenDetail, onOpenRoster,
                           <td style={css.td}>{c?.name || '–'}</td>
                           <td style={css.td}>{CHAIR_LABELS[r.chairPosition]}</td>
                           <td style={css.td}>{r.cohort}</td>
-                          <td style={css.td}><span style={css.badge(r.urgency === 'Critical' ? '#fdf0f2' : r.urgency === 'High' ? '#fff3e6' : '#e2ddd6', r.urgency === 'Critical' ? '#9b2335' : r.urgency === 'High' ? '#b85c00' : '#8a8680')}>{r.urgency}</span></td>
+                          <td style={css.td}><span style={css.badge(r.urgency === 'Critical' ? '#fdf0f2' : r.urgency === 'High' ? '#fff3e6' : '#e2ddd6', r.urgency === 'Critical' ? '#9b2335' : r.urgency === 'High' ? '#b85c00' : '#3d3c38')}>{r.urgency}</span></td>
                           <td style={css.td}><span style={css.badge('#dbeafe', '#1e40af')}>{r.status}</span></td>
                           <td style={css.td}>
                             <select value={r.status} onChange={e => setData(d => ({ ...d, requests: d.requests.map(rr => rr.id === r.id ? { ...rr, status: e.target.value } : rr) }))} style={{ ...css.select, fontSize: 12, padding: '2px 6px' }}>
@@ -2039,7 +2039,7 @@ function StaffingGapsPanel({ data, setData, onClose, onOpenDetail, onOpenRoster,
               <div key={sc.id} style={{ ...css.card, marginBottom: 12, border: '1px solid #e2ddd6' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div>
-                    <span style={{ fontWeight: 700, color: '#1a1916' }}>{sc.name}</span>
+                    <span style={{ fontWeight: 700, color: '#000000' }}>{sc.name}</span>
                     <span style={{ ...css.badge(sc.status === 'Applied' ? '#e0f4ff' : sc.status === 'Rejected' ? '#fdf0f2' : '#fff3e6', sc.status === 'Applied' ? '#0077b6' : sc.status === 'Rejected' ? '#9b2335' : '#b85c00'), marginLeft: 8 }}>{sc.status}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
@@ -2058,12 +2058,12 @@ function StaffingGapsPanel({ data, setData, onClose, onOpenDetail, onOpenRoster,
                     )}
                   </div>
                 </div>
-                <div style={{ fontSize: 13, color: '#8a8680' }}>
+                <div style={{ fontSize: 13, color: '#3d3c38' }}>
                   {sc.moves.map((m, i) => <div key={i}>{m.personName} → {m.clientName} ({CHAIR_LABELS[m.chairPosition]})</div>)}
                 </div>
               </div>
             ))}
-            {(data.scenarios || []).length === 0 && <div style={{ color: '#c4c0b8', textAlign: 'center', padding: 40 }}>No scenarios yet. Pin candidates from the Roster and build a scenario.</div>}
+            {(data.scenarios || []).length === 0 && <div style={{ color: '#8a8680', textAlign: 'center', padding: 40 }}>No scenarios yet. Pin candidates from the Roster and build a scenario.</div>}
           </div>
         )}
       </div>
@@ -2118,20 +2118,20 @@ function RecommendationRoster({ data, setData, context, onClose, onOpenDetail })
       return (
         <Modal onClose={onClose} width="min(800px, 95vw)" height="min(85vh, 700px)">
           <div style={{ padding: 24, height: '100%', overflow: 'auto' }}>
-            <button onClick={() => setPreviewPerson(null)} style={{ ...css.btnSm('#e2ddd6', '#8a8680'), marginBottom: 16 }}>← Back to Roster</button>
-            <h3 style={{ fontSize: 20, fontWeight: 700, color: '#1a1916', marginBottom: 8 }}>{p.name}</h3>
+            <button onClick={() => setPreviewPerson(null)} style={{ ...css.btnSm('#e2ddd6', '#3d3c38'), marginBottom: 16 }}>← Back to Roster</button>
+            <h3 style={{ fontSize: 20, fontWeight: 700, color: '#000000', marginBottom: 8 }}>{p.name}</h3>
             <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
               {p.cohorts.map(c => <span key={c} style={css.badge(COHORT_COLORS[c]?.bg, COHORT_COLORS[c]?.fg)}>{c}</span>)}
-              <span style={css.badge('#e2ddd6', '#8a8680')}>L{p.level}</span>
+              <span style={css.badge('#e2ddd6', '#3d3c38')}>L{p.level}</span>
             </div>
             <div style={{ marginBottom: 16 }}>
               <UtilBar util={u.util} prospectUtil={u.prospectUtil} height={20} />
-              <div style={{ fontSize: 13, color: '#8a8680', marginTop: 4 }}>{Math.round(u.hours).toLocaleString()} / {u.target.toLocaleString()} hrs</div>
+              <div style={{ fontSize: 13, color: '#3d3c38', marginTop: 4 }}>{Math.round(u.hours).toLocaleString()} / {u.target.toLocaleString()} hrs</div>
             </div>
             <div style={css.sectionTitle}>Current Assignments</div>
             {pAssignments.map(a => {
               const c = clients.find(cl => cl.id === a.clientId);
-              return c ? <div key={a.id} style={{ fontSize: 13, padding: '4px 0', color: '#6e6a62' }}>{c.name} · {CHAIR_LABELS[a.chairPosition]} · {assignmentCohort(a, people)}</div> : null;
+              return c ? <div key={a.id} style={{ fontSize: 13, padding: '4px 0', color: '#2a2925' }}>{c.name} · {CHAIR_LABELS[a.chairPosition]} · {assignmentCohort(a, people)}</div> : null;
             })}
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
               <button onClick={() => {
@@ -2139,7 +2139,7 @@ function RecommendationRoster({ data, setData, context, onClose, onOpenDetail })
                   setData(d => ({ ...d, assignments: d.assignments.map(a => a.id === assignmentId ? { ...a, pins: [...(a.pins || []), { id: uid(), personId: p.id, label: '', createdAt: new Date().toISOString() }] } : a) }));
                 }
                 setPreviewPerson(null);
-              }} style={css.btn(isPinned(p.id) ? '#c4c0b8' : '#f59e0b', '#fff')}>{isPinned(p.id) ? 'Already Pinned' : '📌 Pin'}</button>
+              }} style={css.btn(isPinned(p.id) ? '#8a8680' : '#f59e0b', '#fff')}>{isPinned(p.id) ? 'Already Pinned' : '📌 Pin'}</button>
               <button onClick={() => {
                 setData(d => ({ ...d, assignments: d.assignments.map(a => a.id === assignmentId ? { ...a, personId: p.id } : a) }));
                 onClose();
@@ -2157,10 +2157,10 @@ function RecommendationRoster({ data, setData, context, onClose, onOpenDetail })
         <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2ddd6' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1916' }}>Recommendation Roster</h3>
-              <div style={{ fontSize: 13, color: '#8a8680', marginTop: 2 }}>{client?.name} · {CHAIR_LABELS[chairPosition]} · {cohort}</div>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#000000' }}>Recommendation Roster</h3>
+              <div style={{ fontSize: 13, color: '#3d3c38', marginTop: 2 }}>{client?.name} · {CHAIR_LABELS[chairPosition]} · {cohort}</div>
             </div>
-            <button onClick={onClose} style={css.btnSm('#e2ddd6', '#8a8680')}>✕</button>
+            <button onClick={onClose} style={css.btnSm('#e2ddd6', '#3d3c38')}>✕</button>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
             <select value={levelFilter} onChange={e => setLevelFilter(e.target.value)} style={css.select}>
@@ -2188,7 +2188,7 @@ function RecommendationRoster({ data, setData, context, onClose, onOpenDetail })
             <tbody>
               {sorted.map(c => (
                 <tr key={c.person.id}>
-                  <td style={css.td}><span onClick={() => setPreviewPerson(c.person.id)} style={{ fontWeight: 500, color: '#1a1916', cursor: 'pointer' }}>{c.person.name}</span></td>
+                  <td style={css.td}><span onClick={() => setPreviewPerson(c.person.id)} style={{ fontWeight: 500, color: '#000000', cursor: 'pointer' }}>{c.person.name}</span></td>
                   <td style={css.td}>
                     <span style={{ fontWeight: 600 }}>L{c.person.level}</span>
                     {c.levelMatch === 2 && <span style={{ ...css.badge('#e0f4ff', '#0077b6'), marginLeft: 4, fontSize: 10 }}>Ideal</span>}
@@ -2202,7 +2202,7 @@ function RecommendationRoster({ data, setData, context, onClose, onOpenDetail })
                         if (!isPinned(c.person.id)) {
                           setData(d => ({ ...d, assignments: d.assignments.map(a => a.id === assignmentId ? { ...a, pins: [...(a.pins || []), { id: uid(), personId: c.person.id, label: '', createdAt: new Date().toISOString() }] } : a) }));
                         }
-                      }} style={css.btnSm(isPinned(c.person.id) ? '#c4c0b8' : '#f59e0b', '#fff')}>{isPinned(c.person.id) ? '✓' : '📌'}</button>
+                      }} style={css.btnSm(isPinned(c.person.id) ? '#8a8680' : '#f59e0b', '#fff')}>{isPinned(c.person.id) ? '✓' : '📌'}</button>
                       <button onClick={() => {
                         setData(d => ({ ...d, assignments: d.assignments.map(a => a.id === assignmentId ? { ...a, personId: c.person.id } : a) }));
                         onClose();
@@ -2213,7 +2213,7 @@ function RecommendationRoster({ data, setData, context, onClose, onOpenDetail })
               ))}
             </tbody>
           </table>
-          {sorted.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#c4c0b8' }}>No candidates match filters</div>}
+          {sorted.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#8a8680' }}>No candidates match filters</div>}
         </div>
         {/* Pinned candidates bar */}
         {assignment && (assignment.pins || []).length > 0 && (
@@ -2266,13 +2266,13 @@ function GapNotesModal({ data, setData, assignmentId, onClose }) {
       <div style={{ padding: 24, height: '100%', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1916' }}>Gap Notes</h3>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#000000' }}>Gap Notes</h3>
             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
               <span style={css.badge(assignment.personId === '__TBD__' ? '#fff3e6' : '#fdf0f2', assignment.personId === '__TBD__' ? '#b85c00' : '#9b2335')}>{placeholderLabel(assignment.personId)}</span>
-              <span style={{ fontSize: 13, color: '#8a8680' }}>{client?.name} · {CHAIR_LABELS[assignment.chairPosition]} · {assignmentCohort(assignment, data.people)}</span>
+              <span style={{ fontSize: 13, color: '#3d3c38' }}>{client?.name} · {CHAIR_LABELS[assignment.chairPosition]} · {assignmentCohort(assignment, data.people)}</span>
             </div>
           </div>
-          <button onClick={onClose} style={css.btnSm('#e2ddd6', '#8a8680')}>✕</button>
+          <button onClick={onClose} style={css.btnSm('#e2ddd6', '#3d3c38')}>✕</button>
         </div>
         <textarea
           value={notes}
@@ -2281,7 +2281,7 @@ function GapNotesModal({ data, setData, assignmentId, onClose }) {
           style={{ ...css.input, flex: 1, resize: 'none', fontSize: 14, lineHeight: 1.6 }}
           autoFocus
         />
-        <div style={{ fontSize: 12, color: '#c4c0b8', marginTop: 8 }}>Auto-saving</div>
+        <div style={{ fontSize: 12, color: '#8a8680', marginTop: 8 }}>Auto-saving</div>
       </div>
     </Modal>
   );
@@ -2352,7 +2352,7 @@ function SandboxBar({ liveData, sandboxData, originalData, scenarioName, onDisca
           <span key={i} onClick={() => {
             if (c.personId) onOpenDetail({ type: 'person', id: c.personId });
             else if (c.clientId) onOpenDetail({ type: 'client', id: c.clientId });
-          }} style={{ ...css.badge(chipColors[c.type]?.bg || '#e2ddd6', chipColors[c.type]?.fg || '#8a8680'), cursor: 'pointer', fontSize: 12, textDecoration: c.type === 'removed' || c.type === 'personRemoved' ? 'line-through' : 'none' }}>
+          }} style={{ ...css.badge(chipColors[c.type]?.bg || '#e2ddd6', chipColors[c.type]?.fg || '#3d3c38'), cursor: 'pointer', fontSize: 12, textDecoration: c.type === 'removed' || c.type === 'personRemoved' ? 'line-through' : 'none' }}>
             {c.label}
           </span>
         ))}
@@ -2404,13 +2404,13 @@ function GlobalSearch({ data, onSelect, onClose }) {
           {results.map((r, i) => (
             <div key={`${r.type}-${r.id}-${i}`} onClick={() => { onSelect(r); onClose(); }} style={{ padding: '10px 16px', cursor: 'pointer', background: i === selectedIdx ? '#eef3fb' : 'transparent', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontWeight: 500, color: '#1a1916' }}>{r.name}</div>
-                <div style={{ fontSize: 12, color: '#c4c0b8' }}>{r.sub}</div>
+                <div style={{ fontWeight: 500, color: '#000000' }}>{r.name}</div>
+                <div style={{ fontSize: 12, color: '#8a8680' }}>{r.sub}</div>
               </div>
-              <span style={{ ...css.badge('#e2ddd6', '#8a8680'), fontSize: 10, textTransform: 'capitalize' }}>{r.type}</span>
+              <span style={{ ...css.badge('#e2ddd6', '#3d3c38'), fontSize: 10, textTransform: 'capitalize' }}>{r.type}</span>
             </div>
           ))}
-          {query.trim() && results.length === 0 && <div style={{ padding: 24, textAlign: 'center', color: '#c4c0b8' }}>No results</div>}
+          {query.trim() && results.length === 0 && <div style={{ padding: 24, textAlign: 'center', color: '#8a8680' }}>No results</div>}
         </div>
       </div>
     </div>
@@ -2447,7 +2447,7 @@ function DataTab({ data, setData }) {
 
   return (
     <div style={{ padding: 24, overflow: 'auto', height: '100%' }}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1916', marginBottom: 16 }}>Data Management</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 700, color: '#000000', marginBottom: 16 }}>Data Management</h2>
 
       {/* Export */}
       <div style={{ ...css.card, marginBottom: 16 }}>
@@ -2488,12 +2488,12 @@ function DataTab({ data, setData }) {
           <div style={css.sectionTitle}>Snapshots</div>
           <button onClick={createSnapshot} style={css.btn()}>Create Snapshot</button>
         </div>
-        {(data.snapshots || []).length === 0 ? <div style={{ color: '#c4c0b8', fontSize: 13 }}>No snapshots yet</div> : (
+        {(data.snapshots || []).length === 0 ? <div style={{ color: '#8a8680', fontSize: 13 }}>No snapshots yet</div> : (
           (data.snapshots || []).map(s => (
             <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #e2ddd6' }}>
               <div>
-                <div style={{ fontWeight: 500, color: '#1a1916' }}>{s.name}</div>
-                <div style={{ fontSize: 12, color: '#c4c0b8' }}>{new Date(s.createdAt).toLocaleString()}</div>
+                <div style={{ fontWeight: 500, color: '#000000' }}>{s.name}</div>
+                <div style={{ fontSize: 12, color: '#8a8680' }}>{new Date(s.createdAt).toLocaleString()}</div>
               </div>
               <button onClick={() => {
                 if (confirm('Restore this snapshot? Current data will be replaced.')) {
@@ -2508,10 +2508,10 @@ function DataTab({ data, setData }) {
       {/* Change History */}
       <div style={css.card}>
         <div style={css.sectionTitle}>Change History</div>
-        {(data.history || []).length === 0 ? <div style={{ color: '#c4c0b8', fontSize: 13 }}>No changes recorded</div> : (
+        {(data.history || []).length === 0 ? <div style={{ color: '#8a8680', fontSize: 13 }}>No changes recorded</div> : (
           (data.history || []).slice(-20).reverse().map((h, i) => (
-            <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #e2ddd6', fontSize: 13, color: '#6e6a62' }}>
-              <span style={{ color: '#c4c0b8', marginRight: 8 }}>{new Date(h.timestamp).toLocaleString()}</span>
+            <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #e2ddd6', fontSize: 13, color: '#2a2925' }}>
+              <span style={{ color: '#8a8680', marginRight: 8 }}>{new Date(h.timestamp).toLocaleString()}</span>
               {h.description}
             </div>
           ))
@@ -2527,7 +2527,7 @@ function SettingsTab({ data, setData }) {
 
   return (
     <div style={{ padding: 24, overflow: 'auto', height: '100%' }}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1a1916', marginBottom: 16 }}>Settings</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 700, color: '#000000', marginBottom: 16 }}>Settings</h2>
 
       {/* Levels */}
       <div style={{ ...css.card, marginBottom: 16 }}>
@@ -2619,7 +2619,7 @@ function SettingsTab({ data, setData }) {
               }} />
               Costs
             </label>
-            <span style={{ fontSize: 11, color: '#c4c0b8', whiteSpace: 'nowrap' }}>?pod={pod.code}</span>
+            <span style={{ fontSize: 11, color: '#8a8680', whiteSpace: 'nowrap' }}>?pod={pod.code}</span>
           </div>
         ))}
       </div>
@@ -2629,8 +2629,8 @@ function SettingsTab({ data, setData }) {
         <div style={css.sectionTitle}>Budget Templates</div>
         {(data.budgetTemplates || []).map(bt => (
           <div key={bt.id} style={{ marginBottom: 12, padding: '8px 0', borderBottom: '1px solid #e2ddd6' }}>
-            <div style={{ fontWeight: 600, color: '#1a1916' }}>{bt.name}</div>
-            <div style={{ fontSize: 12, color: '#8a8680', marginTop: 2 }}>
+            <div style={{ fontWeight: 600, color: '#000000' }}>{bt.name}</div>
+            <div style={{ fontSize: 12, color: '#3d3c38', marginTop: 2 }}>
               {bt.items.length} items · {bt.items.reduce((s, i) => s + i.hours, 0)} total hours
             </div>
           </div>
@@ -2654,8 +2654,8 @@ function BudgetWorksheet({ client, budget, settings, assignments, people, onSave
     <Modal onClose={onClose} width="min(850px, 95vw)">
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1916' }}>Budget Worksheet — {client.name}</h3>
-          <button onClick={onClose} style={css.btnSm('#e2ddd6', '#8a8680')}>✕</button>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#000000' }}>Budget Worksheet — {client.name}</h3>
+          <button onClick={onClose} style={css.btnSm('#e2ddd6', '#3d3c38')}>✕</button>
         </div>
 
         {budgetTemplates?.length > 0 && (
@@ -2702,7 +2702,7 @@ function BudgetWorksheet({ client, budget, settings, assignments, people, onSave
           </tfoot>
         </table>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setItems([...items, { id: uid(), task: '', level: 4, hours: 0, notes: '' }])} style={css.btn('#e2ddd6', '#8a8680')}>+ Add Row</button>
+          <button onClick={() => setItems([...items, { id: uid(), task: '', level: 4, hours: 0, notes: '' }])} style={css.btn('#e2ddd6', '#3d3c38')}>+ Add Row</button>
           <button onClick={() => onSave(client.id, { items })} style={css.btn()}>Save</button>
         </div>
       </div>
@@ -2716,8 +2716,8 @@ function WelcomeDashboard({ onLoadSample }) {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: 40 }}>
       <div style={{ textAlign: 'center', maxWidth: 500 }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
-        <h2 style={{ fontSize: 24, fontWeight: 700, color: '#1a1916', marginBottom: 8 }}>Welcome to Capacity Planner</h2>
-        <p style={{ color: '#8a8680', marginBottom: 24 }}>Get started in 3 easy steps:</p>
+        <h2 style={{ fontSize: 24, fontWeight: 700, color: '#000000', marginBottom: 8 }}>Welcome to Capacity Planner</h2>
+        <p style={{ color: '#3d3c38', marginBottom: 24 }}>Get started in 3 easy steps:</p>
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 24 }}>
           {[
             { step: '1', title: 'Add People', desc: 'Build your team roster' },
@@ -2726,8 +2726,8 @@ function WelcomeDashboard({ onLoadSample }) {
           ].map(s => (
             <div key={s.step} style={{ ...css.card, width: 140, textAlign: 'center', padding: 16 }}>
               <div style={{ width: 32, height: 32, borderRadius: 16, background: '#1d4e89', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px', fontWeight: 700 }}>{s.step}</div>
-              <div style={{ fontWeight: 600, color: '#1a1916', marginBottom: 2 }}>{s.title}</div>
-              <div style={{ fontSize: 12, color: '#c4c0b8' }}>{s.desc}</div>
+              <div style={{ fontWeight: 600, color: '#000000', marginBottom: 2 }}>{s.title}</div>
+              <div style={{ fontSize: 12, color: '#8a8680' }}>{s.desc}</div>
             </div>
           ))}
         </div>
