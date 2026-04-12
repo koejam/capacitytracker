@@ -2739,6 +2739,50 @@ function WelcomeDashboard({ onLoadSample }) {
 
 // ─── Main App ───────────────────────────────────────────────────
 // ─── Gaps Workbench ─────────────────────────────────────────────
+function FilterGroup({ label, options, selected, onToggle }) {
+  return (
+    <div style={{ margin: '8px 0' }}>
+      <div style={{ fontSize: 10, fontWeight: 600, color: '#3d3c38', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>{label}</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+        {options.map(o => (
+          <button key={o.value} onClick={() => onToggle(o.value)} style={{
+            padding: '3px 8px', fontSize: 11, border: '1px solid #e2ddd6', borderRadius: 12,
+            background: selected.includes(o.value) ? '#000' : '#fff',
+            color: selected.includes(o.value) ? '#fff' : '#2a2925',
+            cursor: 'pointer', fontFamily: "'Inter', system-ui, sans-serif"
+          }}>{o.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GapRow({ gap, clients, people, selected, hasProposal, onSelect }) {
+  const client = clients.find(c => c.id === gap.clientId);
+  const cohort = assignmentCohort(gap, people);
+  const range = CHAIR_LEVEL_MAP[gap.chairPosition];
+  const isTBD = gap.personId === '__TBD__';
+  return (
+    <div onClick={onSelect} style={{
+      padding: '10px 12px', borderBottom: '1px solid #e2ddd6', cursor: 'pointer',
+      background: selected ? '#eef3fb' : 'transparent',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#000' }}>{client?.name || 'Unknown'}</div>
+        {hasProposal && <div title="Proposed" style={{ width: 8, height: 8, borderRadius: '50%', background: '#0077b6' }} />}
+      </div>
+      <div style={{ fontSize: 12, color: '#2a2925', marginTop: 2, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+        <span>{CHAIR_LABELS[gap.chairPosition]}</span>
+        <span>·</span>
+        <span>{cohort}</span>
+        <span>·</span>
+        <span>L{range[0]}–L{range[1]}</span>
+        <span style={{ display: 'inline-block', background: isTBD ? '#fff3e6' : '#fdf0f2', color: isTBD ? '#b85c00' : '#9b2335', padding: '1px 6px', borderRadius: 8, fontSize: 10, fontWeight: 600, letterSpacing: '0.5px' }}>{isTBD ? 'TBD' : 'OPEN'}</span>
+      </div>
+    </div>
+  );
+}
+
 function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandbox, setSandbox }) {
   const { people, clients, assignments } = data;
   const [selectedGapId, setSelectedGapId] = useState(null);
@@ -2751,6 +2795,51 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
   const selectedGap = gaps.find(g => g.id === selectedGapId) || null;
   const selectedClient = selectedGap ? clients.find(c => c.id === selectedGap.clientId) : null;
 
+  const CHAIR_OPTIONS = [
+    { value: 1, label: 'Lead' }, { value: 2, label: '2nd Chair' }, { value: 3, label: '3rd Chair' },
+    { value: 4, label: '4th Chair' }, { value: 5, label: '5th Chair' },
+  ];
+  const COHORT_OPTIONS = ['Service', 'Financial', 'Advisory', 'Other'];
+  const TYPE_OPTIONS = [{ value: '__TBD__', label: 'TBD' }, { value: '__OPEN__', label: 'OPEN' }];
+  const STATUS_OPTIONS = ['Active', 'Prospect', 'Won'];
+
+  const filteredGaps = useMemo(() => {
+    return gaps.filter(g => {
+      const client = clients.find(c => c.id === g.clientId);
+      if (!client) return false;
+      const cohort = assignmentCohort(g, people);
+      if (filters.cohorts.length && !filters.cohorts.includes(cohort)) return false;
+      if (filters.chairs.length && !filters.chairs.includes(g.chairPosition)) return false;
+      if (filters.types.length && !filters.types.includes(g.personId)) return false;
+      if (filters.statuses.length && !filters.statuses.includes(client.status)) return false;
+      return true;
+    });
+  }, [gaps, clients, people, filters]);
+
+  const sortedGaps = useMemo(() => {
+    const arr = [...filteredGaps];
+    if (sortBy === 'revenue') {
+      arr.sort((a, b) => {
+        const ca = clients.find(c => c.id === a.clientId);
+        const cb = clients.find(c => c.id === b.clientId);
+        return (cb?.revenue || 0) - (ca?.revenue || 0);
+      });
+    } else {
+      arr.sort((a, b) => {
+        const ca = clients.find(c => c.id === a.clientId);
+        const cb = clients.find(c => c.id === b.clientId);
+        return new Date(ca?.endDate || '2099-01-01') - new Date(cb?.endDate || '2099-01-01');
+      });
+    }
+    return arr;
+  }, [filteredGaps, sortBy, clients]);
+
+  const proposalGapIds = useMemo(() => new Set(proposals.map(p => p.gapAssignmentId)), [proposals]);
+
+  const toggleFilter = (key, value) => {
+    setFilters(f => ({ ...f, [key]: f[key].includes(value) ? f[key].filter(v => v !== value) : [...f[key], value] }));
+  };
+
   return (
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden', background: '#f7f5f0' }}>
       {/* LEFT PANE */}
@@ -2759,8 +2848,43 @@ function GapsWorkbench({ data, setData, settings, proposals, setProposals, sandb
           <div style={{ fontSize: 18, fontWeight: 700, color: '#000' }}>Gaps</div>
           <div style={{ fontSize: 13, color: '#2a2925', marginTop: 4 }}>{gaps.length} gaps · {proposals.length} in proposals</div>
         </div>
-        <div style={{ flex: 1, overflow: 'auto', padding: 12 }}>
-          <div style={{ color: '#3d3c38', fontSize: 13, padding: 12 }}>Gaps list — next task.</div>
+        <div style={{ padding: 12, borderBottom: '1px solid #e2ddd6' }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ ...css.select, fontSize: 12, padding: '4px 8px', flex: 1 }}>
+              <option value="revenue">Sort: Revenue</option>
+              <option value="endDate">Sort: End date</option>
+            </select>
+            <select value={groupBy} onChange={e => setGroupBy(e.target.value)} style={{ ...css.select, fontSize: 12, padding: '4px 8px', flex: 1 }}>
+              <option value="flat">Group: Flat</option>
+              <option value="client">Group: By client</option>
+            </select>
+          </div>
+          <details style={{ fontSize: 12, color: '#2a2925' }}>
+            <summary style={{ cursor: 'pointer', padding: '4px 0', fontWeight: 600 }}>Filters</summary>
+            <FilterGroup label="Cohort" options={COHORT_OPTIONS.map(v => ({ value: v, label: v }))} selected={filters.cohorts} onToggle={v => toggleFilter('cohorts', v)} />
+            <FilterGroup label="Chair" options={CHAIR_OPTIONS} selected={filters.chairs} onToggle={v => toggleFilter('chairs', v)} />
+            <FilterGroup label="Type" options={TYPE_OPTIONS} selected={filters.types} onToggle={v => toggleFilter('types', v)} />
+            <FilterGroup label="Status" options={STATUS_OPTIONS.map(v => ({ value: v, label: v }))} selected={filters.statuses} onToggle={v => toggleFilter('statuses', v)} />
+          </details>
+        </div>
+        <div style={{ flex: 1, overflow: 'auto' }}>
+          {groupBy === 'flat' ? (
+            sortedGaps.length === 0 ? (
+              <div style={{ padding: 16, color: '#3d3c38', fontSize: 13 }}>No gaps match the current filters.</div>
+            ) : (
+              sortedGaps.map(g => <GapRow key={g.id} gap={g} clients={clients} people={people} selected={selectedGapId === g.id} hasProposal={proposalGapIds.has(g.id)} onSelect={() => { setSelectedGapId(g.id); setSelectedCandidateId(null); }} />)
+            )
+          ) : (
+            Object.entries(sortedGaps.reduce((acc, g) => { (acc[g.clientId] = acc[g.clientId] || []).push(g); return acc; }, {})).map(([clientId, clientGaps]) => {
+              const client = clients.find(c => c.id === clientId);
+              return (
+                <div key={clientId} style={{ borderBottom: '1px solid #e2ddd6' }}>
+                  <div style={{ padding: '8px 12px', background: '#faf8f3', fontSize: 13, fontWeight: 600, color: '#000' }}>{client?.name || 'Unknown'} <span style={{ color: '#3d3c38', fontWeight: 400 }}>· {clientGaps.length}</span></div>
+                  {clientGaps.map(g => <GapRow key={g.id} gap={g} clients={clients} people={people} selected={selectedGapId === g.id} hasProposal={proposalGapIds.has(g.id)} onSelect={() => { setSelectedGapId(g.id); setSelectedCandidateId(null); }} />)}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
